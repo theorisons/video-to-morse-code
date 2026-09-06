@@ -1,8 +1,8 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { MorseReferencePanel } from "@/components/morse-reference-panel";
-import { MorseStudio } from "@/components/morse-studio";
+import { MorseReferencePanel } from "./reference";
+import { MorseStudio } from "./studio";
 import {
   DEFAULT_AUDIO_SETTINGS,
   type AudioSettings,

@@ -1,4 +1,4 @@
-import { MorseApp } from "@/components/morse-app";
+import { MorseApp } from "@/components/morse";
 
 export default function Home() {
   return (

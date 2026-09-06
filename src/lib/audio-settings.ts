@@ -1,10 +1,12 @@
 import type { WaveformType } from "@morsecodeapp/morse/audio";
 
+/** Fixed loudness for live playback and WAV export (not user-adjustable). */
+export const FIXED_VOLUME = 80;
+
 export type AudioSettings = {
   /** Character speed (PARIS WPM) */
   wpm: number;
   frequency: number;
-  volume: number;
   waveform: WaveformType;
   /** Overall pace with Farnsworth spacing (always slower than `wpm`) */
   farnsworthWpm: number;
@@ -13,7 +15,6 @@ export type AudioSettings = {
 export const DEFAULT_AUDIO_SETTINGS: AudioSettings = {
   wpm: 20,
   frequency: 600,
-  volume: 80,
   waveform: "sine",
   farnsworthWpm: 15,
 };
