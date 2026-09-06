@@ -29,7 +29,7 @@ export function MorseApp() {
         </div>
       </header>
 
-      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-8">
+      <div className="grid w-full grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-8">
         <MorseStudio
           settings={settings}
           onSettingsChange={setSettings}

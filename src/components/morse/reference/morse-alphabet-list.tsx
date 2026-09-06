@@ -1,5 +1,6 @@
 "use client";
 
+import { Fragment } from "react";
 import { itu } from "@morsecodeapp/morse/core";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
@@ -56,28 +57,34 @@ export function MorseAlphabetList({
   ];
 
   return (
-    <div className="grid w-max grid-cols-[auto_auto] gap-x-5 gap-y-0.5">
+    <div className="grid w-full grid-cols-[minmax(0,1fr)_minmax(0,3fr)_minmax(0,1fr)_minmax(0,3fr)_minmax(0,1fr)] lg:w-max lg:grid-cols-[auto_auto] lg:gap-x-5">
       {rows.map(({ char, morse, sectionStart }) => {
         const isActive = activeChar === char;
         return (
-          <button
-            key={char}
-            type="button"
-            onClick={() => onPlayChar(char, morse)}
-            aria-label={t("playChar", { char })}
-            className={cn(
-              "col-span-2 grid cursor-pointer grid-cols-subgrid items-baseline rounded-md py-1 text-left transition-colors hover:bg-muted/60",
-              sectionStart && "mt-2 border-t border-border pt-3",
-              isActive && "bg-primary/10"
-            )}
-          >
-            <span className="pl-0.5 text-muted-foreground tabular-nums">
-              {char}
-            </span>
-            <span className="pr-0.5 font-mono text-base font-semibold tracking-widest text-foreground">
-              {morse}
-            </span>
-          </button>
+          <Fragment key={char}>
+            {sectionStart ? (
+              <div
+                aria-hidden
+                className="col-span-5 my-1.5 h-px bg-border lg:col-span-2 lg:my-2"
+              />
+            ) : null}
+            <button
+              type="button"
+              onClick={() => onPlayChar(char, morse)}
+              aria-label={t("playChar", { char })}
+              className={cn(
+                "col-span-5 grid cursor-pointer grid-cols-subgrid items-baseline rounded-md py-0.5 text-centered transition-colors hover:bg-muted/60 lg:col-span-2 lg:py-1",
+                isActive && "bg-primary/10"
+              )}
+            >
+              <span className="col-start-2 text-muted-foreground tabular-nums lg:col-start-1">
+                {char}
+              </span>
+              <span className="col-start-4 font-mono text-base font-semibold tracking-widest text-foreground lg:col-start-2">
+                {morse}
+              </span>
+            </button>
+          </Fragment>
         );
       })}
     </div>

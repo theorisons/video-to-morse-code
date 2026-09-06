@@ -71,14 +71,14 @@ export function MorseReferencePanel({
   }
 
   return (
-    <aside className="w-max lg:sticky lg:top-6 lg:self-start">
-      <Card size="sm" className="w-max gap-0 overflow-hidden py-0">
+    <aside className="w-full lg:sticky lg:top-6 lg:w-max lg:self-start">
+      <Card size="sm" className="w-full gap-0 overflow-hidden py-0 lg:w-max">
         <CardHeader className="shrink-0 bg-muted px-3 py-1.5">
           <CardTitle className="w-full text-center text-xs font-medium tracking-[0.14em] text-muted-foreground uppercase">
             {t("title")}
           </CardTitle>
         </CardHeader>
-        <CardContent className="max-h-[min(70vh,36rem)] overflow-y-auto px-2 py-2 pr-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <CardContent className="max-h-[min(70vh,36rem)] overflow-y-auto px-1.5 py-1 pr-1 lg:px-2 lg:py-2 lg:pr-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <MorseAlphabetList
             entries={ITU_ENTRIES}
             activeChar={activeChar}
