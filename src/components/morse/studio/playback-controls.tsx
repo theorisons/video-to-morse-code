@@ -71,7 +71,7 @@ export function PlaybackControls({
           type="button"
           variant="outline"
           onClick={onStop}
-          disabled={playerState === "idle"}
+          disabled={playerState === "idle" && elapsedMs <= 0}
         >
           <SquareIcon data-icon="inline-start" />
           Stop

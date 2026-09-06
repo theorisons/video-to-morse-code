@@ -41,6 +41,7 @@ import {
   MIN_WPM,
   type AudioSettings,
 } from "@/lib/audio-settings";
+import { patchMorsePlayerTransport } from "@/lib/patch-morse-player-transport";
 import { AudioSettingsPanel } from "./audio-settings";
 import {
   BinaryOscilloscope,
@@ -121,44 +122,47 @@ export function MorseStudio({
 
   const createPlayer = useCallback(() => {
     disposePlayer();
-    const player = new MorsePlayer({
-      wpm: settings.wpm,
-      frequency: settings.frequency,
-      waveform: settings.waveform,
-      volume: FIXED_VOLUME,
-      farnsworth: true,
-      farnsworthWpm: settings.farnsworthWpm,
-      onPlay: () => setPlayerState("playing"),
-      onPause: () => setPlayerState("paused"),
-      onResume: () => setPlayerState("playing"),
-      onStop: () => {
-        setPlayerState("idle");
-        clearPlaybackHighlight();
-      },
-      onEnd: () => {
-        setPlayerState("idle");
-        clearPlaybackHighlight();
-      },
-      onSignal: (_signal, charIndex) => {
-        if (lastCharRef.current !== charIndex) {
-          lastCharRef.current = charIndex;
-          signalCountRef.current = 0;
-        } else {
-          signalCountRef.current += 1;
-        }
-        setActiveCharIndex(charIndex);
-        setActiveSignalIndex(signalCountRef.current);
-      },
-      onCharacter: (_char, _morseChar, charIndex) => {
-        setActiveCharIndex(charIndex);
-      },
-      onProgress: (currentMs) => {
-        setElapsedMs(currentMs);
-      },
-    });
+    const player = patchMorsePlayerTransport(
+      new MorsePlayer({
+        wpm: settings.wpm,
+        frequency: settings.frequency,
+        waveform: settings.waveform,
+        volume: FIXED_VOLUME,
+        farnsworth: true,
+        farnsworthWpm: settings.farnsworthWpm,
+        onPlay: () => setPlayerState("playing"),
+        onPause: () => setPlayerState("paused"),
+        onResume: () => setPlayerState("playing"),
+        onStop: () => {
+          setPlayerState("idle");
+          clearPlaybackHighlight();
+        },
+        onEnd: () => {
+          // Leave highlights / playhead at the end; only Stop resets.
+          setPlayerState("idle");
+          setElapsedMs(durationMs);
+        },
+        onSignal: (_signal, charIndex) => {
+          if (lastCharRef.current !== charIndex) {
+            lastCharRef.current = charIndex;
+            signalCountRef.current = 0;
+          } else {
+            signalCountRef.current += 1;
+          }
+          setActiveCharIndex(charIndex);
+          setActiveSignalIndex(signalCountRef.current);
+        },
+        onCharacter: (_char, _morseChar, charIndex) => {
+          setActiveCharIndex(charIndex);
+        },
+        onProgress: (currentMs) => {
+          setElapsedMs(currentMs);
+        },
+      })
+    );
     playerRef.current = player;
     return player;
-  }, [clearPlaybackHighlight, disposePlayer, settings]);
+  }, [clearPlaybackHighlight, disposePlayer, durationMs, settings]);
 
   useEffect(() => {
     return () => {
@@ -220,8 +224,13 @@ export function MorseStudio({
 
     onBeforePlay?.();
 
-    if (playerState === "paused" && playerRef.current) {
+    // Prefer the player's own state so a stale UI flag can't restart audio.
+    if (playerRef.current?.state === "paused") {
       await playerRef.current.resume();
+      return;
+    }
+
+    if (playerRef.current?.state === "playing") {
       return;
     }
 
@@ -235,7 +244,12 @@ export function MorseStudio({
   }
 
   function handleStop() {
-    playerRef.current?.stop();
+    if (playerRef.current) {
+      playerRef.current.stop();
+      return;
+    }
+    setPlayerState("idle");
+    clearPlaybackHighlight();
   }
 
   function handleDownload() {
