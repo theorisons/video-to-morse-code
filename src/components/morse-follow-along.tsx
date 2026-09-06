@@ -106,7 +106,7 @@ export function TextFollowAlong({
                 isActive && "bg-primary text-primary-foreground"
               )}
             >
-              {token.letter.sourceChar}
+              {token.letter.foldedChar}
             </span>
           );
         })}

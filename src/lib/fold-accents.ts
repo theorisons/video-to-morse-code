@@ -3,9 +3,9 @@ import { itu } from "@morsecodeapp/morse/core";
 export type EncodedLetter = {
   /** Same index MorsePlayer.onSignal / onCharacter use */
   charIndex: number;
-  /** Original grapheme (accents kept for text follow-along) */
+  /** Original grapheme from user input */
   sourceChar: string;
-  /** Folded base used for ITU lookup */
+  /** Folded base used for ITU lookup and text follow-along */
   foldedChar: string;
   /** Morse pattern for this letter */
   morse: string;

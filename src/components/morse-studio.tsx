@@ -299,7 +299,7 @@ export function MorseStudio() {
         <CardHeader className="border-b">
           <CardTitle>Follow along — text</CardTitle>
           <CardDescription>
-            Highlights the letter currently playing (accents kept).
+            Highlights the letter currently playing (folded to what Morse sends).
           </CardDescription>
         </CardHeader>
         <CardContent>
