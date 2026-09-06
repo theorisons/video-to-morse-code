@@ -318,6 +318,73 @@ export function MorseStudio() {
         </CardContent>
       </Card>
 
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-wrap items-baseline justify-between gap-2 text-sm">
+          <span className="text-muted-foreground">Exact duration</span>
+          <span className="font-mono tabular-nums">
+            {durationLabel}
+            {exactSeconds !== null ? (
+              <span className="ml-2 text-muted-foreground">
+                ({exactSeconds}s)
+              </span>
+            ) : null}
+          </span>
+        </div>
+        {playerState !== "idle" ? (
+          <div className="flex flex-wrap items-baseline justify-between gap-2 text-sm">
+            <span className="text-muted-foreground">Elapsed</span>
+            <span className="font-mono tabular-nums">
+              {formatDuration(elapsedMs)}
+            </span>
+          </div>
+        ) : null}
+
+        <div className="flex flex-wrap gap-2">
+          {playing ? (
+            <Button type="button" onClick={handlePause} disabled={!hasMorse}>
+              <PauseIcon data-icon="inline-start" />
+              Pause
+            </Button>
+          ) : (
+            <Button type="button" onClick={handlePlay} disabled={!hasMorse}>
+              <PlayIcon data-icon="inline-start" />
+              {playerState === "paused" ? "Resume" : "Play"}
+            </Button>
+          )}
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleStop}
+            disabled={playerState === "idle"}
+          >
+            <SquareIcon data-icon="inline-start" />
+            Stop
+          </Button>
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={handleDownload}
+            disabled={!hasMorse}
+          >
+            <DownloadIcon data-icon="inline-start" />
+            Download WAV
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleCopy}
+            disabled={!hasMorse}
+          >
+            {copied ? (
+              <CheckIcon data-icon="inline-start" />
+            ) : (
+              <ClipboardIcon data-icon="inline-start" />
+            )}
+            {copied ? "Copied" : "Copy Morse"}
+          </Button>
+        </div>
+      </div>
+
       <Card size="sm">
         <CardHeader className="border-b">
           <CardTitle>Audio settings</CardTitle>
@@ -456,73 +523,8 @@ export function MorseStudio() {
               />
             </SettingRow>
           ) : null}
-
-          <div className="flex flex-wrap items-baseline justify-between gap-2 border-t pt-4 text-sm">
-            <span className="text-muted-foreground">Exact duration</span>
-            <span className="font-mono tabular-nums">
-              {durationLabel}
-              {exactSeconds !== null ? (
-                <span className="ml-2 text-muted-foreground">
-                  ({exactSeconds}s)
-                </span>
-              ) : null}
-            </span>
-          </div>
-          {playerState !== "idle" ? (
-            <div className="flex flex-wrap items-baseline justify-between gap-2 text-sm">
-              <span className="text-muted-foreground">Elapsed</span>
-              <span className="font-mono tabular-nums">
-                {formatDuration(elapsedMs)}
-              </span>
-            </div>
-          ) : null}
         </CardContent>
       </Card>
-
-      <div className="flex flex-wrap gap-2">
-        {playing ? (
-          <Button type="button" onClick={handlePause} disabled={!hasMorse}>
-            <PauseIcon data-icon="inline-start" />
-            Pause
-          </Button>
-        ) : (
-          <Button type="button" onClick={handlePlay} disabled={!hasMorse}>
-            <PlayIcon data-icon="inline-start" />
-            {playerState === "paused" ? "Resume" : "Play"}
-          </Button>
-        )}
-        <Button
-          type="button"
-          variant="outline"
-          onClick={handleStop}
-          disabled={playerState === "idle"}
-        >
-          <SquareIcon data-icon="inline-start" />
-          Stop
-        </Button>
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={handleDownload}
-          disabled={!hasMorse}
-        >
-          <DownloadIcon data-icon="inline-start" />
-          Download WAV
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={handleCopy}
-          disabled={!hasMorse}
-        >
-          {copied ? (
-            <CheckIcon data-icon="inline-start" />
-          ) : (
-            <ClipboardIcon data-icon="inline-start" />
-          )}
-          {copied ? "Copied" : "Copy Morse"}
-        </Button>
-      </div>
     </div>
   );
 }
