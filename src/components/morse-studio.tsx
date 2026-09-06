@@ -335,19 +335,13 @@ export function MorseStudio() {
 
       <div className="flex flex-col gap-3">
         <div className="flex flex-wrap items-baseline justify-between gap-2 text-sm">
-          <span className="text-muted-foreground">Exact duration</span>
+          <span className="text-muted-foreground">Time</span>
           <span className="font-mono tabular-nums">
-            {hasMorse ? formatExactSeconds(durationMs) : "—"}
+            {hasMorse
+              ? `${formatExactSeconds(elapsedMs)} / ${formatExactSeconds(durationMs)}`
+              : "—"}
           </span>
         </div>
-        {playerState !== "idle" ? (
-          <div className="flex flex-wrap items-baseline justify-between gap-2 text-sm">
-            <span className="text-muted-foreground">Elapsed</span>
-            <span className="font-mono tabular-nums">
-              {formatExactSeconds(elapsedMs)}
-            </span>
-          </div>
-        ) : null}
 
         <div className="flex flex-wrap gap-2">
           {playing ? (
