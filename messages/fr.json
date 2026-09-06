@@ -15,7 +15,7 @@
     "toggle": "Changer de thème"
   },
   "Studio": {
-    "plainText": "Texte en clair",
+    "plainText": "Texte",
     "placeholder": "Saisissez ou collez du texte… Les accents (é, è…) deviennent e en Morse.",
     "followTextTitle": "Suivi — texte",
     "followTextDescription": "Met en évidence la lettre en cours de lecture (forme de base envoyée en Morse).",

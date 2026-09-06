@@ -1,7 +1,7 @@
 {
   "Metadata": {
     "title": "Morse code generator",
-    "description": "Client-side Morse translator and WAV audio generator. Accents fold to base letters."
+    "description": "Client-side Morse translator and WAV audio generator."
   },
   "App": {
     "title": "Morse code generator"
@@ -16,8 +16,8 @@
   },
   "Studio": {
     "plainText": "Plain text",
-    "placeholder": "Type or paste text… Accents like é, è fold to e for Morse.",
-    "followTextTitle": "Follow along — text",
+    "placeholder": "Type or paste text…\nAccents or special characters might be substituted for their base form or skipped.",
+    "followTextTitle": "Follow along | text",
     "followTextDescription": "Highlights the letter currently playing (folded to what Morse sends).",
     "followMorseTitle": "Follow along — Morse",
     "followMorseDescription": "Live ITU Morse. Accented letters fold to their base form.",
