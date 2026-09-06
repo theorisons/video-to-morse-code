@@ -293,10 +293,11 @@ export function MorseStudio({
         <Label htmlFor="plaintext">Plain text</Label>
         <Textarea
           id="plaintext"
+          rows={4}
           value={text}
           onChange={(e) => setText(e.target.value)}
           placeholder="Type or paste text… Accents like é, è fold to e for Morse."
-          className="min-h-32 resize-y font-sans"
+          className="min-h-[calc(4lh+1rem)] resize-none font-sans"
           disabled={playing}
         />
       </div>
