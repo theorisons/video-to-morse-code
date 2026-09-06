@@ -1,0 +1,78 @@
+{
+  "Metadata": {
+    "title": "Morse code generator",
+    "description": "Client-side Morse translator and WAV audio generator. Accents fold to base letters."
+  },
+  "App": {
+    "title": "Morse code generator"
+  },
+  "Language": {
+    "label": "Language",
+    "en": "EN",
+    "fr": "FR"
+  },
+  "Theme": {
+    "toggle": "Toggle theme"
+  },
+  "Studio": {
+    "plainText": "Plain text",
+    "placeholder": "Type or paste text… Accents like é, è fold to e for Morse.",
+    "followTextTitle": "Follow along — text",
+    "followTextDescription": "Highlights the letter currently playing (folded to what Morse sends).",
+    "followMorseTitle": "Follow along — Morse",
+    "followMorseDescription": "Live ITU Morse. Accented letters fold to their base form.",
+    "lettersCount": "{count, plural, one {# letter} other {# letters}}"
+  },
+  "Playback": {
+    "time": "Time",
+    "play": "Play",
+    "pause": "Pause",
+    "resume": "Resume",
+    "stop": "Stop",
+    "downloadWav": "Download WAV",
+    "copyMorse": "Copy Morse",
+    "copied": "Copied"
+  },
+  "Settings": {
+    "soundPreset": "Sound preset",
+    "presetsHint": "Presets fill speed, tone, and waveform.",
+    "audioSettings": "Audio settings",
+    "characterSpeed": "Character speed (WPM)",
+    "characterSpeedInfo": "How fast each character is sent (PARIS standard). Gaps between characters are stretched so the overall pace matches overall speed.",
+    "overallSpeed": "Overall speed (WPM)",
+    "overallSpeedInfo": "Effective listening pace. Kept slower than character speed by stretching spacing between characters.",
+    "toneFrequency": "Tone frequency",
+    "toneFrequencyInfo": "Pitch of the Morse tone in hertz. Typical practice tones sit around 500–800 Hz.",
+    "waveform": "Waveform",
+    "waveformInfo": "Shape of the oscillator that generates the tone. Sine is the cleanest; square, triangle, and sawtooth sound more textured.",
+    "aboutSetting": "About {label}",
+    "aboutThisSetting": "About this setting",
+    "wpmValue": "{value} WPM",
+    "hzValue": "{value} Hz",
+    "waveforms": {
+      "sine": "Sine",
+      "square": "Square",
+      "triangle": "Triangle",
+      "sawtooth": "Sawtooth"
+    },
+    "presets": {
+      "telegraph": "Telegraph",
+      "radio": "Radio",
+      "military": "Military",
+      "sonar": "Sonar",
+      "naval": "Naval",
+      "beginner": "Beginner"
+    }
+  },
+  "Reference": {
+    "title": "Reference",
+    "playChar": "Play Morse for {char}"
+  },
+  "FollowAlong": {
+    "textEmpty": "Type text above — letters will light up here while audio plays.",
+    "morseEmpty": "Morse will appear here as you type."
+  },
+  "Oscilloscope": {
+    "ariaLabel": "Binary Morse oscilloscope showing on and off signal levels"
+  }
+}

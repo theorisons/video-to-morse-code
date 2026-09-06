@@ -1,0 +1,78 @@
+{
+  "Metadata": {
+    "title": "Générateur de code Morse",
+    "description": "Traducteur Morse et générateur audio WAV côté client. Les accents sont ramenés aux lettres de base."
+  },
+  "App": {
+    "title": "Générateur de code Morse"
+  },
+  "Language": {
+    "label": "Langue",
+    "en": "EN",
+    "fr": "FR"
+  },
+  "Theme": {
+    "toggle": "Changer de thème"
+  },
+  "Studio": {
+    "plainText": "Texte en clair",
+    "placeholder": "Saisissez ou collez du texte… Les accents (é, è…) deviennent e en Morse.",
+    "followTextTitle": "Suivi — texte",
+    "followTextDescription": "Met en évidence la lettre en cours de lecture (forme de base envoyée en Morse).",
+    "followMorseTitle": "Suivi — Morse",
+    "followMorseDescription": "Morse ITU en direct. Les lettres accentuées sont ramenées à leur forme de base.",
+    "lettersCount": "{count, plural, one {# lettre} other {# lettres}}"
+  },
+  "Playback": {
+    "time": "Temps",
+    "play": "Lecture",
+    "pause": "Pause",
+    "resume": "Reprendre",
+    "stop": "Stop",
+    "downloadWav": "Télécharger le WAV",
+    "copyMorse": "Copier le Morse",
+    "copied": "Copié"
+  },
+  "Settings": {
+    "soundPreset": "Préréglage sonore",
+    "presetsHint": "Les préréglages renseignent la vitesse, la tonalité et la forme d’onde.",
+    "audioSettings": "Réglages audio",
+    "characterSpeed": "Vitesse des caractères (WPM)",
+    "characterSpeedInfo": "Vitesse d’envoi de chaque caractère (norme PARIS). Les intervalles entre caractères sont étirés pour que le rythme global corresponde à la vitesse globale.",
+    "overallSpeed": "Vitesse globale (WPM)",
+    "overallSpeedInfo": "Rythme d’écoute effectif. Gardé plus lent que la vitesse des caractères en étirant l’espacement entre eux.",
+    "toneFrequency": "Fréquence du ton",
+    "toneFrequencyInfo": "Hauteur du ton Morse en hertz. Les tons d’entraînement se situent souvent autour de 500–800 Hz.",
+    "waveform": "Forme d’onde",
+    "waveformInfo": "Forme de l’oscillateur qui génère le ton. Le sinus est le plus pur ; carré, triangle et dents de scie sont plus texturés.",
+    "aboutSetting": "À propos de {label}",
+    "aboutThisSetting": "À propos de ce réglage",
+    "wpmValue": "{value} WPM",
+    "hzValue": "{value} Hz",
+    "waveforms": {
+      "sine": "Sinus",
+      "square": "Carré",
+      "triangle": "Triangle",
+      "sawtooth": "Dent de scie"
+    },
+    "presets": {
+      "telegraph": "Télégraphe",
+      "radio": "Radio",
+      "military": "Militaire",
+      "sonar": "Sonar",
+      "naval": "Naval",
+      "beginner": "Débutant"
+    }
+  },
+  "Reference": {
+    "title": "Référence",
+    "playChar": "Lire le Morse de {char}"
+  },
+  "FollowAlong": {
+    "textEmpty": "Saisissez du texte ci-dessus — les lettres s’allumeront ici pendant la lecture.",
+    "morseEmpty": "Le Morse apparaîtra ici au fur et à mesure de la saisie."
+  },
+  "Oscilloscope": {
+    "ariaLabel": "Oscilloscope Morse binaire montrant les niveaux signal allumé et éteint"
+  }
+}

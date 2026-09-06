@@ -8,6 +8,7 @@ import {
   useState,
   type MutableRefObject,
 } from "react";
+import { useTranslations } from "next-intl";
 import {
   buildSchedule,
   downloadWav,
@@ -64,6 +65,7 @@ export function MorseStudio({
   stopPlaybackRef,
   onBeforePlay,
 }: MorseStudioProps) {
+  const t = useTranslations("Studio");
   const [text, setText] = useState("");
   const [playerState, setPlayerState] = useState<PlayerUiState>("idle");
   const [activeCharIndex, setActiveCharIndex] = useState<number | null>(null);
@@ -277,13 +279,13 @@ export function MorseStudio({
     <TooltipProvider delay={200}>
       <div className="flex flex-col gap-6">
         <div className="flex flex-col gap-2">
-          <Label htmlFor="plaintext">Plain text</Label>
+          <Label htmlFor="plaintext">{t("plainText")}</Label>
           <Textarea
             id="plaintext"
             rows={4}
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder="Type or paste text… Accents like é, è fold to e for Morse."
+            placeholder={t("placeholder")}
             className="min-h-[calc(4lh+1rem)] resize-none font-sans"
             disabled={playing}
           />
@@ -291,11 +293,8 @@ export function MorseStudio({
 
         <Card size="sm">
           <CardHeader className="border-b">
-            <CardTitle>Follow along — text</CardTitle>
-            <CardDescription>
-              Highlights the letter currently playing (folded to what Morse
-              sends).
-            </CardDescription>
+            <CardTitle>{t("followTextTitle")}</CardTitle>
+            <CardDescription>{t("followTextDescription")}</CardDescription>
           </CardHeader>
           <CardContent>
             <TextFollowAlong
@@ -309,14 +308,12 @@ export function MorseStudio({
           <CardHeader className="border-b">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <CardTitle>Follow along — Morse</CardTitle>
-                <CardDescription>
-                  Live ITU Morse. Accented letters fold to their base form.
-                </CardDescription>
+                <CardTitle>{t("followMorseTitle")}</CardTitle>
+                <CardDescription>{t("followMorseDescription")}</CardDescription>
               </div>
               {hasMorse ? (
                 <Badge variant="outline">
-                  {encoded.letters.length} letters
+                  {t("lettersCount", { count: encoded.letters.length })}
                 </Badge>
               ) : null}
             </div>
@@ -330,24 +327,13 @@ export function MorseStudio({
           </CardContent>
         </Card>
 
-        <Card size="sm">
-          <CardHeader className="border-b">
-            <CardTitle>Signal — binary</CardTitle>
-            <CardDescription>
-              Oscilloscope of the Morse gate: on = 1, off = 0. A short (dot)
-              is 1 unit wide; a long (dash) is 3.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <BinaryOscilloscope
-              segments={binarySegments}
-              unitMs={timings.unit}
-              playerState={playerState}
-              elapsedMs={elapsedMs}
-              getPlaybackMs={getPlaybackMs}
-            />
-          </CardContent>
-        </Card>
+        <BinaryOscilloscope
+          segments={binarySegments}
+          unitMs={timings.unit}
+          playerState={playerState}
+          elapsedMs={elapsedMs}
+          getPlaybackMs={getPlaybackMs}
+        />
 
         <PlaybackControls
           hasMorse={hasMorse}

@@ -1,8 +1,8 @@
-import type { Metadata } from "next";
 import { Geist_Mono, Inter } from "next/font/google";
+import { getLocale } from "next-intl/server";
 import { ThemeProvider } from "@/components/theme-provider";
-import "./globals.css";
 import { cn } from "@/lib/utils";
+import "./globals.css";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -14,20 +14,16 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
 });
 
-export const metadata: Metadata = {
-  title: "Morse code generator",
-  description:
-    "Client-side Morse translator and WAV audio generator. Accents fold to base letters.",
-};
-
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+
   return (
     <html
-      lang="en"
+      lang={locale}
       suppressHydrationWarning
       className={cn(
         "h-full antialiased",

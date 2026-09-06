@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef } from "react";
+import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
 import type { BinarySegment } from "./binary-segments";
 import { levelAt } from "./binary-segments";
@@ -255,6 +256,7 @@ export function BinaryOscilloscope({
   elapsedMs,
   getPlaybackMs,
 }: BinaryOscilloscopeProps) {
+  const t = useTranslations("Oscilloscope");
   const { resolvedTheme } = useTheme();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -383,7 +385,7 @@ export function BinaryOscilloscope({
     <div
       className="rounded-lg shadow-[0_0_0_1px_color-mix(in_oklch,var(--primary)_40%,transparent),0_0_14px_color-mix(in_oklch,var(--primary-foreground)_28%,var(--primary)),0_0_32px_color-mix(in_oklch,var(--primary)_18%,transparent)]"
       role="img"
-      aria-label="Binary Morse oscilloscope showing on and off signal levels"
+      aria-label={t("ariaLabel")}
     >
       <div
         ref={wrapperRef}

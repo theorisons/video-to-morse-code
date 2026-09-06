@@ -8,6 +8,7 @@ import {
   PlayIcon,
   SquareIcon,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 
 /** Seconds with always three millisecond digits, e.g. 0.000s / 2.880s */
@@ -44,10 +45,12 @@ export function PlaybackControls({
   onDownload,
   onCopy,
 }: PlaybackControlsProps) {
+  const t = useTranslations("Playback");
+
   return (
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-baseline justify-between gap-2 text-sm">
-        <span className="text-muted-foreground">Time</span>
+        <span className="text-muted-foreground">{t("time")}</span>
         <span className="font-mono tabular-nums">
           {hasMorse
             ? `${formatExactSeconds(elapsedMs)} / ${formatExactSeconds(durationMs)}`
@@ -59,12 +62,12 @@ export function PlaybackControls({
         {playing ? (
           <Button type="button" onClick={onPause} disabled={!hasMorse}>
             <PauseIcon data-icon="inline-start" />
-            Pause
+            {t("pause")}
           </Button>
         ) : (
           <Button type="button" onClick={onPlay} disabled={!hasMorse}>
             <PlayIcon data-icon="inline-start" />
-            {playerState === "paused" ? "Resume" : "Play"}
+            {playerState === "paused" ? t("resume") : t("play")}
           </Button>
         )}
         <Button
@@ -74,7 +77,7 @@ export function PlaybackControls({
           disabled={playerState === "idle" && elapsedMs <= 0}
         >
           <SquareIcon data-icon="inline-start" />
-          Stop
+          {t("stop")}
         </Button>
         <Button
           type="button"
@@ -83,7 +86,7 @@ export function PlaybackControls({
           disabled={!hasMorse}
         >
           <DownloadIcon data-icon="inline-start" />
-          Download WAV
+          {t("downloadWav")}
         </Button>
         <Button
           type="button"
@@ -96,7 +99,7 @@ export function PlaybackControls({
           ) : (
             <ClipboardIcon data-icon="inline-start" />
           )}
-          {copied ? "Copied" : "Copy Morse"}
+          {copied ? t("copied") : t("copyMorse")}
         </Button>
       </div>
     </div>

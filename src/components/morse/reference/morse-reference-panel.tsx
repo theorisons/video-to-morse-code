@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type MutableRefObject } from "react";
+import { useTranslations } from "next-intl";
 import { MorsePlayer } from "@morsecodeapp/morse/audio";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FIXED_VOLUME, type AudioSettings } from "@/lib/audio-settings";
@@ -17,6 +18,7 @@ export function MorseReferencePanel({
   onBeforePlay,
   stopPlaybackRef,
 }: MorseReferencePanelProps) {
+  const t = useTranslations("Reference");
   const playerRef = useRef<MorsePlayer | null>(null);
   const [activeChar, setActiveChar] = useState<string | null>(null);
 
@@ -73,7 +75,7 @@ export function MorseReferencePanel({
       <Card size="sm" className="w-max gap-0 overflow-hidden py-0">
         <CardHeader className="shrink-0 bg-muted px-3 py-1.5">
           <CardTitle className="w-full text-center text-xs font-medium tracking-[0.14em] text-muted-foreground uppercase">
-            Reference
+            {t("title")}
           </CardTitle>
         </CardHeader>
         <CardContent className="max-h-[min(70vh,36rem)] overflow-y-auto px-2 py-2 pr-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">

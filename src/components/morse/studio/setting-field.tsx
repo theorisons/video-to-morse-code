@@ -1,4 +1,7 @@
+"use client";
+
 import { InfoIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
@@ -17,6 +20,12 @@ export function SettingLabel({
   info: string;
   htmlFor?: string;
 }) {
+  const t = useTranslations("Settings");
+  const aboutLabel =
+    typeof children === "string"
+      ? t("aboutSetting", { label: children })
+      : t("aboutThisSetting");
+
   return (
     <div className="flex items-center gap-1.5">
       <Label htmlFor={htmlFor}>{children}</Label>
@@ -24,7 +33,7 @@ export function SettingLabel({
         <TooltipTrigger
           type="button"
           className="inline-flex size-5 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground"
-          aria-label={`About ${typeof children === "string" ? children : "this setting"}`}
+          aria-label={aboutLabel}
         >
           <InfoIcon className="size-3.5" />
         </TooltipTrigger>

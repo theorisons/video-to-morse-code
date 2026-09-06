@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronDownIcon } from "lucide-react";
+import { useTranslations } from "next-intl";
 import {
   presets,
   type PresetName,
@@ -55,12 +56,13 @@ export function AudioSettingsPanel({
   onPatchSettings,
   onApplyPreset,
 }: AudioSettingsPanelProps) {
+  const t = useTranslations("Settings");
   const farnsworthMax = Math.max(1, settings.wpm - 1);
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col gap-2">
-        <Label>Sound preset</Label>
+        <Label>{t("soundPreset")}</Label>
         <div className="flex flex-wrap gap-2">
           {PRESET_KEYS.map((key) => (
             <Button
@@ -71,13 +73,11 @@ export function AudioSettingsPanel({
               disabled={settingsLocked}
               onClick={() => onApplyPreset(key)}
             >
-              {presets[key].name}
+              {t(`presets.${key}`)}
             </Button>
           ))}
         </div>
-          <p className="text-xs text-muted-foreground">
-            Presets fill speed, tone, and waveform.
-          </p>
+        <p className="text-xs text-muted-foreground">{t("presetsHint")}</p>
       </div>
 
       <Collapsible
@@ -85,16 +85,16 @@ export function AudioSettingsPanel({
         className="group/audio-settings overflow-hidden rounded-xl bg-card text-card-foreground shadow-xs ring-1 ring-foreground/10"
       >
         <CollapsibleTrigger className="flex w-full cursor-pointer items-center justify-between gap-3 px-4 py-3 text-left text-sm font-medium transition-colors hover:bg-muted/50">
-          <span>Audio settings</span>
+          <span>{t("audioSettings")}</span>
           <ChevronDownIcon className="size-4 shrink-0 text-muted-foreground transition-transform duration-200 group-data-open/audio-settings:rotate-180" />
         </CollapsibleTrigger>
         <CollapsibleContent>
           <div className="border-t border-border">
             <div className="flex flex-col gap-5 px-4 py-4">
               <SettingRow
-                label="Character speed (WPM)"
-                info="How fast each character is sent (PARIS standard). Gaps between characters are stretched so the overall pace matches overall speed."
-                valueLabel={`${settings.wpm} WPM`}
+                label={t("characterSpeed")}
+                info={t("characterSpeedInfo")}
+                valueLabel={t("wpmValue", { value: settings.wpm })}
               >
                 <Slider
                   min={MIN_WPM}
@@ -110,9 +110,9 @@ export function AudioSettingsPanel({
               </SettingRow>
 
               <SettingRow
-                label="Overall speed (WPM)"
-                info="Effective listening pace. Kept slower than character speed by stretching spacing between characters."
-                valueLabel={`${settings.farnsworthWpm} WPM`}
+                label={t("overallSpeed")}
+                info={t("overallSpeedInfo")}
+                valueLabel={t("wpmValue", { value: settings.farnsworthWpm })}
               >
                 <Slider
                   min={1}
@@ -129,9 +129,9 @@ export function AudioSettingsPanel({
               </SettingRow>
 
               <SettingRow
-                label="Tone frequency"
-                info="Pitch of the Morse tone in hertz. Typical practice tones sit around 500–800 Hz."
-                valueLabel={`${settings.frequency} Hz`}
+                label={t("toneFrequency")}
+                info={t("toneFrequencyInfo")}
+                valueLabel={t("hzValue", { value: settings.frequency })}
               >
                 <Slider
                   min={MIN_FREQ}
@@ -148,11 +148,8 @@ export function AudioSettingsPanel({
               </SettingRow>
 
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                <SettingLabel
-                  htmlFor="waveform"
-                  info="Shape of the oscillator that generates the tone. Sine is the cleanest; square, triangle, and sawtooth sound more textured."
-                >
-                  Waveform
+                <SettingLabel htmlFor="waveform" info={t("waveformInfo")}>
+                  {t("waveform")}
                 </SettingLabel>
                 <Select
                   value={settings.waveform}
@@ -172,7 +169,7 @@ export function AudioSettingsPanel({
                         value ? (
                           <span className="flex items-center gap-2">
                             <WaveformGlyph type={value} />
-                            <span className="capitalize">{value}</span>
+                            <span>{t(`waveforms.${value}`)}</span>
                           </span>
                         ) : null
                       }
@@ -183,7 +180,7 @@ export function AudioSettingsPanel({
                       <SelectItem key={wave} value={wave}>
                         <span className="flex items-center gap-2">
                           <WaveformGlyph type={wave} />
-                          <span className="capitalize">{wave}</span>
+                          <span>{t(`waveforms.${wave}`)}</span>
                         </span>
                       </SelectItem>
                     ))}

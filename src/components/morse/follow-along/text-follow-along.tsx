@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import type { TextToken } from "@/lib/fold-accents";
 import { FollowAlongShell } from "./follow-along-shell";
@@ -14,6 +15,7 @@ export function TextFollowAlong({
   tokens,
   activeCharIndex,
 }: TextFollowAlongProps) {
+  const t = useTranslations("FollowAlong");
   const activeRef = useRef<HTMLSpanElement | null>(null);
 
   useEffect(() => {
@@ -27,7 +29,7 @@ export function TextFollowAlong({
   return (
     <FollowAlongShell
       isEmpty={tokens.length === 0}
-      empty="Type text above — letters will light up here while audio plays."
+      empty={t("textEmpty")}
     >
       <p className="font-sans tracking-wide">
         {tokens.map((token, i) => {

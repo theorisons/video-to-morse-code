@@ -1,6 +1,7 @@
 "use client";
 
 import { itu } from "@morsecodeapp/morse/core";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
 type MorseEntry = {
@@ -41,6 +42,7 @@ export function MorseAlphabetList({
   activeChar,
   onPlayChar,
 }: MorseAlphabetListProps) {
+  const t = useTranslations("Reference");
   const letters = entries.filter((e) => isLetter(e.char));
   const digits = entries.filter((e) => isDigit(e.char));
   const punctuation = entries.filter(
@@ -62,7 +64,7 @@ export function MorseAlphabetList({
             key={char}
             type="button"
             onClick={() => onPlayChar(char, morse)}
-            aria-label={`Play Morse for ${char}`}
+            aria-label={t("playChar", { char })}
             className={cn(
               "col-span-2 grid cursor-pointer grid-cols-subgrid items-baseline rounded-md py-1 text-left transition-colors hover:bg-muted/60",
               sectionStart && "mt-2 border-t border-border pt-3",
