@@ -69,6 +69,7 @@ export function MorseStudio({
 }: MorseStudioProps) {
   const t = useTranslations("Studio");
   const tPlayback = useTranslations("Playback");
+  const tFollow = useTranslations("FollowAlong");
   const [text, setText] = useState("");
   const [playerState, setPlayerState] = useState<PlayerUiState>("idle");
   const [activeCharIndex, setActiveCharIndex] = useState<number | null>(null);
@@ -359,15 +360,21 @@ export function MorseStudio({
             </CardAction>
           </CardHeader>
           <CardContent>
-            <TextFollowAlong
-              tokens={encoded.textTokens}
-              activeCharIndex={activeCharIndex}
-            />
-            <MorseFollowAlong
-              morse={morse}
-              activeCharIndex={activeCharIndex}
-              activeSignalIndex={activeSignalIndex}
-            />
+            {!hasMorse ? (
+              <p className="text-sm text-muted-foreground">{tFollow("empty")}</p>
+            ) : (
+              <div className="flex flex-col gap-3">
+                <TextFollowAlong
+                  tokens={encoded.textTokens}
+                  activeCharIndex={activeCharIndex}
+                />
+                <MorseFollowAlong
+                  morse={morse}
+                  activeCharIndex={activeCharIndex}
+                  activeSignalIndex={activeSignalIndex}
+                />
+              </div>
+            )}
           </CardContent>
         </Card>
 

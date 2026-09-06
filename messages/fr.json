@@ -65,8 +65,7 @@
     "playChar": "Lire le Morse de {char}"
   },
   "FollowAlong": {
-    "textEmpty": "Saisissez du texte ci-dessus — les lettres s’allumeront ici pendant la lecture.",
-    "morseEmpty": "Le Morse apparaîtra ici au fur et à mesure de la saisie."
+    "empty": "Saisissez d’abord du texte ci-dessus."
   },
   "Oscilloscope": {
     "ariaLabel": "Oscilloscope Morse binaire montrant les niveaux signal allumé et éteint"

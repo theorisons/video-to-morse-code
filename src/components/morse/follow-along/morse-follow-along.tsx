@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { FollowAlongShell } from "./follow-along-shell";
 import { tokenizeMorse } from "./tokenize-morse";
@@ -17,7 +16,6 @@ export function MorseFollowAlong({
   activeCharIndex,
   activeSignalIndex,
 }: MorseFollowAlongProps) {
-  const t = useTranslations("FollowAlong");
   const tokens = tokenizeMorse(morse);
   const activeRef = useRef<HTMLSpanElement | null>(null);
 
@@ -30,10 +28,7 @@ export function MorseFollowAlong({
   }, [activeCharIndex, activeSignalIndex]);
 
   return (
-    <FollowAlongShell
-      isEmpty={!morse.trim()}
-      empty={t("morseEmpty")}
-    >
+    <FollowAlongShell>
       <p className="font-mono tracking-wide">
         {tokens.map((token, i) => {
           if (token.type === "sep") {

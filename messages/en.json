@@ -65,8 +65,7 @@
     "playChar": "Play Morse for {char}"
   },
   "FollowAlong": {
-    "textEmpty": "Type text above — letters will light up here while audio plays.",
-    "morseEmpty": "Morse will appear here as you type."
+    "empty": "Enter text above first."
   },
   "Oscilloscope": {
     "ariaLabel": "Binary Morse oscilloscope showing on and off signal levels"

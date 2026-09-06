@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import type { TextToken } from "@/lib/fold-accents";
 import { FollowAlongShell } from "./follow-along-shell";
@@ -15,7 +14,6 @@ export function TextFollowAlong({
   tokens,
   activeCharIndex,
 }: TextFollowAlongProps) {
-  const t = useTranslations("FollowAlong");
   const activeRef = useRef<HTMLSpanElement | null>(null);
 
   useEffect(() => {
@@ -27,10 +25,7 @@ export function TextFollowAlong({
   }, [activeCharIndex]);
 
   return (
-    <FollowAlongShell
-      isEmpty={tokens.length === 0}
-      empty={t("textEmpty")}
-    >
+    <FollowAlongShell>
       <p className="font-sans tracking-wide">
         {tokens.map((token, i) => {
           if (token.type === "space") {
