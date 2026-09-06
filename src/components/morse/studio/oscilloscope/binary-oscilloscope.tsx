@@ -19,6 +19,74 @@ type BinaryOscilloscopeProps = {
   getPlaybackMs?: () => number;
 };
 
+type ScopePalette = {
+  screen: string;
+  plateCenter: string;
+  plateEdge: string;
+  gridMajor: string;
+  gridMinor: string;
+  rail: string;
+  label: string;
+  trace: string;
+  glow: string;
+  playhead: string;
+  scanline: string;
+};
+
+function cssVar(styles: CSSStyleDeclaration, name: string, fallback: string) {
+  const value = styles.getPropertyValue(name).trim();
+  return value || fallback;
+}
+
+/** Apply alpha to an `oklch(...)` / `rgb(...)` theme token for canvas use. */
+function withAlpha(color: string, alpha: number): string {
+  const oklch = color.match(/^oklch\((.+)\)$/i);
+  if (oklch) {
+    const body = oklch[1].split("/")[0].trim();
+    return `oklch(${body} / ${alpha})`;
+  }
+  const rgb = color.match(/^rgba?\((.+)\)$/i);
+  if (rgb) {
+    const [r, g, b] = rgb[1].split(",").map((p) => p.trim());
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+  return color;
+}
+
+function readPalette(el: Element): ScopePalette {
+  const styles = getComputedStyle(el);
+  const background = cssVar(styles, "--background", "oklch(0.147 0.004 49.25)");
+  const primary = cssVar(styles, "--primary", "oklch(0.432 0.095 166.913)");
+  const primaryFg = cssVar(
+    styles,
+    "--primary-foreground",
+    "oklch(0.979 0.021 166.113)"
+  );
+  const chart1 = cssVar(styles, "--chart-1", "oklch(0.905 0.182 98.111)");
+  const mutedFg = cssVar(
+    styles,
+    "--muted-foreground",
+    "oklch(0.709 0.01 56.259)"
+  );
+
+  // Dark primary is too muted for a CRT trace — lift it toward primary-foreground.
+  const phosphor = `color-mix(in oklch, ${primaryFg} 72%, ${primary})`;
+
+  return {
+    screen: `color-mix(in oklch, ${background} 94%, black)`,
+    plateCenter: `color-mix(in oklch, ${background} 90%, ${primary})`,
+    plateEdge: `color-mix(in oklch, ${background} 96%, black)`,
+    gridMajor: withAlpha(primary, 0.14),
+    gridMinor: withAlpha(primary, 0.06),
+    rail: withAlpha(primary, 0.12),
+    label: withAlpha(mutedFg, 0.65),
+    trace: phosphor,
+    glow: `color-mix(in oklch, ${phosphor} 65%, transparent)`,
+    playhead: chart1,
+    scanline: "oklch(0 0 0 / 0.06)",
+  };
+}
+
 function resolveTimeMs(
   playerState: PlayerUiState,
   elapsedMs: number,
@@ -37,7 +105,8 @@ function drawScope(
   height: number,
   segments: BinarySegment[],
   unitMs: number,
-  playheadMs: number
+  playheadMs: number,
+  palette: ScopePalette
 ) {
   const padX = 12;
   const padY = 16;
@@ -54,11 +123,9 @@ function drawScope(
     padX + ((ms - windowStartMs) / windowMs) * plotW;
   const levelToY = (level: 0 | 1) => (level === 1 ? yOn : yOff);
 
-  // CRT background
-  ctx.fillStyle = "#0a0f0a";
+  ctx.fillStyle = palette.screen;
   ctx.fillRect(0, 0, width, height);
 
-  // Soft vignette / phosphor glow plate
   const plate = ctx.createRadialGradient(
     width * 0.5,
     height * 0.45,
@@ -67,12 +134,11 @@ function drawScope(
     height * 0.5,
     Math.max(width, height) * 0.7
   );
-  plate.addColorStop(0, "#122018");
-  plate.addColorStop(1, "#050805");
+  plate.addColorStop(0, palette.plateCenter);
+  plate.addColorStop(1, palette.plateEdge);
   ctx.fillStyle = plate;
   ctx.fillRect(0, 0, width, height);
 
-  // Unit grid
   ctx.save();
   ctx.beginPath();
   ctx.rect(padX, padY, plotW, plotH);
@@ -83,7 +149,7 @@ function drawScope(
   for (let u = firstUnit; u <= lastUnit; u++) {
     const x = msToX(u * safeUnit);
     const major = u % 5 === 0;
-    ctx.strokeStyle = major ? "rgba(80, 200, 120, 0.22)" : "rgba(60, 140, 90, 0.12)";
+    ctx.strokeStyle = major ? palette.gridMajor : palette.gridMinor;
     ctx.lineWidth = major ? 1 : 0.5;
     ctx.beginPath();
     ctx.moveTo(x, padY);
@@ -91,9 +157,8 @@ function drawScope(
     ctx.stroke();
   }
 
-  // Horizontal rails for 0 / 1
   for (const y of [yOff, yOn]) {
-    ctx.strokeStyle = "rgba(80, 200, 120, 0.18)";
+    ctx.strokeStyle = palette.rail;
     ctx.lineWidth = 1;
     ctx.setLineDash([4, 4]);
     ctx.beginPath();
@@ -103,23 +168,21 @@ function drawScope(
     ctx.setLineDash([]);
   }
 
-  // Labels
-  ctx.fillStyle = "rgba(120, 220, 150, 0.55)";
-  ctx.font = "10px ui-monospace, SFMono-Regular, Menlo, monospace";
+  ctx.fillStyle = palette.label;
+  ctx.font = '10px "Geist Mono", "Geist Mono Fallback", ui-monospace, monospace';
   ctx.textAlign = "left";
   ctx.fillText("1", padX + 2, yOn - 4);
   ctx.fillText("0", padX + 2, yOff + 12);
 
-  // Square-wave trace
   const windowEndMs = windowStartMs + windowMs;
   let level: 0 | 1 = levelAt(segments, windowStartMs);
 
   ctx.lineJoin = "miter";
   ctx.lineCap = "butt";
-  ctx.strokeStyle = "#5dff9a";
-  ctx.shadowColor = "rgba(60, 255, 140, 0.55)";
-  ctx.shadowBlur = 8;
-  ctx.lineWidth = 2;
+  ctx.strokeStyle = palette.trace;
+  ctx.shadowColor = palette.glow;
+  ctx.shadowBlur = 14;
+  ctx.lineWidth = 2.75;
   ctx.beginPath();
   ctx.moveTo(msToX(windowStartMs), levelToY(level));
 
@@ -132,7 +195,6 @@ function drawScope(
       if (segEnd <= windowStartMs) continue;
       if (segStart >= windowEndMs) break;
 
-      // Rising/falling edge at segment start when inside the window
       if (segStart > windowStartMs && segment.level !== level) {
         const x = msToX(segStart);
         ctx.lineTo(x, levelToY(level));
@@ -149,16 +211,14 @@ function drawScope(
   ctx.stroke();
   ctx.shadowBlur = 0;
 
-  // Playhead
-  ctx.strokeStyle = "rgba(255, 220, 80, 0.85)";
+  ctx.strokeStyle = withAlpha(palette.playhead, 0.9);
   ctx.lineWidth = 1.5;
   ctx.beginPath();
   ctx.moveTo(playheadX, padY);
   ctx.lineTo(playheadX, padY + plotH);
   ctx.stroke();
 
-  // Playhead tip
-  ctx.fillStyle = "rgba(255, 220, 80, 0.9)";
+  ctx.fillStyle = withAlpha(palette.playhead, 0.95);
   ctx.beginPath();
   ctx.moveTo(playheadX, padY);
   ctx.lineTo(playheadX - 4, padY - 6);
@@ -168,8 +228,7 @@ function drawScope(
 
   ctx.restore();
 
-  // Bezel scanlines
-  ctx.fillStyle = "rgba(0, 0, 0, 0.08)";
+  ctx.fillStyle = palette.scanline;
   for (let y = 0; y < height; y += 3) {
     ctx.fillRect(0, y, width, 1);
   }
@@ -238,7 +297,8 @@ export function BinaryOscilloscope({
         cssH,
         segmentsRef.current,
         unitMsRef.current,
-        t
+        t,
+        readPalette(wrapper)
       );
     };
 
@@ -264,11 +324,8 @@ export function BinaryOscilloscope({
       cancelAnimationFrame(rafId);
       ro.disconnect();
     };
-    // elapsedMs / getPlaybackMs are read via refs; only restart the loop
-    // when play state or the plotted signal changes.
   }, [playerState, segments, unitMs]);
 
-  // Redraw once when paused/idle time updates without restarting rAF.
   useEffect(() => {
     if (playerState === "playing") return;
     const canvas = canvasRef.current;
@@ -287,19 +344,20 @@ export function BinaryOscilloscope({
       cssH,
       segmentsRef.current,
       unitMsRef.current,
-      resolveTimeMs(playerState, elapsedMs, getPlaybackMs)
+      resolveTimeMs(playerState, elapsedMs, getPlaybackMs),
+      readPalette(wrapper)
     );
   }, [elapsedMs, playerState, getPlaybackMs]);
 
   return (
     <div
-      className="rounded-lg shadow-[0_0_0_1px_rgba(40,80,50,0.55),0_0_12px_rgba(60,255,140,0.28),0_0_28px_rgba(60,255,140,0.12)]"
+      className="rounded-lg shadow-[0_0_0_1px_color-mix(in_oklch,var(--primary)_40%,transparent),0_0_14px_color-mix(in_oklch,var(--primary-foreground)_28%,var(--primary)),0_0_32px_color-mix(in_oklch,var(--primary)_18%,transparent)]"
       role="img"
       aria-label="Binary Morse oscilloscope showing on and off signal levels"
     >
       <div
         ref={wrapperRef}
-        className="relative h-40 w-full overflow-hidden rounded-lg bg-[#0a0f0a] shadow-[inset_0_0_0_1px_rgba(40,80,50,0.75),inset_0_0_18px_rgba(60,255,140,0.08)]"
+        className="relative h-40 w-full overflow-hidden rounded-lg bg-background shadow-[inset_0_0_0_1px_color-mix(in_oklch,var(--primary)_45%,transparent),inset_0_0_20px_color-mix(in_oklch,var(--primary)_8%,transparent)]"
       >
         <canvas ref={canvasRef} className="block size-full" />
       </div>
