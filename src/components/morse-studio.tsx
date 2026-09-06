@@ -6,6 +6,7 @@ import {
   ChevronDownIcon,
   ClipboardIcon,
   DownloadIcon,
+  InfoIcon,
   PauseIcon,
   PlayIcon,
   SquareIcon,
@@ -53,6 +54,12 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { encodeText } from "@/lib/fold-accents";
 
 const MIN_WPM = 5;
@@ -273,6 +280,7 @@ export function MorseStudio() {
   const farnsworthMax = Math.max(1, settings.wpm - 1);
 
   return (
+    <TooltipProvider delay={200}>
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
         <Label htmlFor="plaintext">Plain text</Label>
@@ -428,6 +436,7 @@ export function MorseStudio() {
               <div className="flex flex-col gap-5 px-4 py-4">
                 <SettingRow
                   label="Speed (WPM)"
+                  info="Words per minute using the PARIS standard. Higher values play Morse faster and shorten the total duration."
                   valueLabel={`${settings.wpm} WPM`}
                 >
                   <Slider
@@ -445,6 +454,7 @@ export function MorseStudio() {
 
                 <SettingRow
                   label="Tone frequency"
+                  info="Pitch of the Morse tone in hertz. Typical practice tones sit around 500–800 Hz."
                   valueLabel={`${settings.frequency} Hz`}
                 >
                   <Slider
@@ -460,7 +470,11 @@ export function MorseStudio() {
                   />
                 </SettingRow>
 
-                <SettingRow label="Volume" valueLabel={`${settings.volume}%`}>
+                <SettingRow
+                  label="Volume"
+                  info="Loudness for live playback and the exported WAV. Volume can still change while audio is playing."
+                  valueLabel={`${settings.volume}%`}
+                >
                   <Slider
                     min={0}
                     max={100}
@@ -474,7 +488,12 @@ export function MorseStudio() {
                 </SettingRow>
 
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                  <Label htmlFor="waveform">Waveform</Label>
+                  <SettingLabel
+                    htmlFor="waveform"
+                    info="Shape of the oscillator that generates the tone. Sine is the cleanest; square, triangle, and sawtooth sound more textured."
+                  >
+                    Waveform
+                  </SettingLabel>
                   <Select
                     value={settings.waveform}
                     onValueChange={(value) => {
@@ -501,12 +520,12 @@ export function MorseStudio() {
                 </div>
 
                 <div className="flex items-center justify-between gap-3">
-                  <div className="flex flex-col gap-0.5">
-                    <Label htmlFor="farnsworth">Farnsworth spacing</Label>
-                    <span className="text-xs text-muted-foreground">
-                      Characters at WPM; overall pace slower.
-                    </span>
-                  </div>
+                  <SettingLabel
+                    htmlFor="farnsworth"
+                    info="Sends characters at the character WPM while stretching gaps so the overall pace is slower. Useful when learning Morse."
+                  >
+                    Farnsworth spacing
+                  </SettingLabel>
                   <Switch
                     id="farnsworth"
                     checked={settings.farnsworth}
@@ -520,6 +539,7 @@ export function MorseStudio() {
                 {settings.farnsworth ? (
                   <SettingRow
                     label="Farnsworth overall WPM"
+                    info="Target overall speed when Farnsworth is on. Must stay slower than the character WPM above."
                     valueLabel={`${settings.farnsworthWpm} WPM`}
                   >
                     <Slider
@@ -542,22 +562,53 @@ export function MorseStudio() {
         </Collapsible>
       </div>
     </div>
+    </TooltipProvider>
+  );
+}
+
+function SettingLabel({
+  children,
+  info,
+  htmlFor,
+}: {
+  children: ReactNode;
+  info: string;
+  htmlFor?: string;
+}) {
+  return (
+    <div className="flex items-center gap-1.5">
+      <Label htmlFor={htmlFor}>{children}</Label>
+      <Tooltip>
+        <TooltipTrigger
+          type="button"
+          className="inline-flex size-5 cursor-pointer items-center justify-center rounded-full text-muted-foreground transition-colors hover:text-foreground"
+          aria-label={`About ${typeof children === "string" ? children : "this setting"}`}
+        >
+          <InfoIcon className="size-3.5" />
+        </TooltipTrigger>
+        <TooltipContent side="top" className="max-w-64 text-pretty">
+          {info}
+        </TooltipContent>
+      </Tooltip>
+    </div>
   );
 }
 
 function SettingRow({
   label,
+  info,
   valueLabel,
   children,
 }: {
   label: string;
+  info: string;
   valueLabel: string;
   children: ReactNode;
 }) {
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between gap-3">
-        <Label>{label}</Label>
+        <SettingLabel info={info}>{label}</SettingLabel>
         <Badge variant="secondary">{valueLabel}</Badge>
       </div>
       {children}
