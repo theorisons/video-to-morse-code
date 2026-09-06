@@ -13,8 +13,8 @@ export type AudioSettings = {
 };
 
 export const DEFAULT_AUDIO_SETTINGS: AudioSettings = {
-  wpm: 20,
-  frequency: 600,
+  wpm: 25,
+  frequency: 700,
   waveform: "sine",
   farnsworthWpm: 15,
 };

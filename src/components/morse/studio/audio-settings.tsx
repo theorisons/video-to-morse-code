@@ -3,7 +3,6 @@
 import { ChevronDownIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
-  presets,
   type PresetName,
   type WaveformType,
 } from "@morsecodeapp/morse/audio";
@@ -33,7 +32,13 @@ import { SettingLabel, SettingRow } from "./setting-field";
 import { WaveformGlyph } from "./waveform-glyph";
 
 const WAVEFORMS: WaveformType[] = ["sine", "square", "triangle", "sawtooth"];
-const PRESET_KEYS = Object.keys(presets) as PresetName[];
+const PRESET_KEYS: PresetName[] = [
+  "military",
+  "naval",
+  "telegraph",
+  "radio",
+  "sonar",
+];
 
 function sliderNumber(
   value: number | readonly number[] | undefined
@@ -45,14 +50,12 @@ function sliderNumber(
 
 type AudioSettingsPanelProps = {
   settings: AudioSettings;
-  settingsLocked: boolean;
   onPatchSettings: (partial: Partial<AudioSettings>) => void;
   onApplyPreset: (name: PresetName) => void;
 };
 
 export function AudioSettingsPanel({
   settings,
-  settingsLocked,
   onPatchSettings,
   onApplyPreset,
 }: AudioSettingsPanelProps) {
@@ -70,7 +73,6 @@ export function AudioSettingsPanel({
               type="button"
               size="sm"
               variant="outline"
-              disabled={settingsLocked}
               onClick={() => onApplyPreset(key)}
             >
               {t(`presets.${key}`)}
@@ -101,7 +103,6 @@ export function AudioSettingsPanel({
                   max={MAX_WPM}
                   step={1}
                   value={[settings.wpm]}
-                  disabled={settingsLocked}
                   onValueChange={(value) => {
                     const next = sliderNumber(value);
                     if (next !== undefined) onPatchSettings({ wpm: next });
@@ -119,7 +120,6 @@ export function AudioSettingsPanel({
                   max={farnsworthMax}
                   step={1}
                   value={[Math.min(settings.farnsworthWpm, farnsworthMax)]}
-                  disabled={settingsLocked}
                   onValueChange={(value) => {
                     const next = sliderNumber(value);
                     if (next !== undefined)
@@ -138,7 +138,6 @@ export function AudioSettingsPanel({
                   max={MAX_FREQ}
                   step={10}
                   value={[settings.frequency]}
-                  disabled={settingsLocked}
                   onValueChange={(value) => {
                     const next = sliderNumber(value);
                     if (next !== undefined)
@@ -161,7 +160,6 @@ export function AudioSettingsPanel({
                       onPatchSettings({ waveform: value as WaveformType });
                     }
                   }}
-                  disabled={settingsLocked}
                 >
                   <SelectTrigger id="waveform" className="w-full sm:w-48">
                     <SelectValue>
