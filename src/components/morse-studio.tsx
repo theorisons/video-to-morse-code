@@ -413,29 +413,29 @@ export function MorseStudio() {
           </p>
         </div>
 
-        <Collapsible defaultOpen={false} className="flex flex-col gap-2">
+        <Collapsible
+          defaultOpen={false}
+          className="group/audio-settings overflow-hidden rounded-xl bg-card text-card-foreground shadow-xs ring-1 ring-foreground/10"
+        >
           <CollapsibleTrigger
-            render={
-              <Button
-                type="button"
-                variant="outline"
-                className="group w-full justify-between"
-              />
-            }
+            className="flex w-full cursor-pointer items-center justify-between gap-3 px-4 py-3 text-left text-sm font-medium transition-colors hover:bg-muted/50"
           >
             <span>Audio settings</span>
-            <ChevronDownIcon className="size-4 transition-transform group-aria-expanded:rotate-180" />
+            <ChevronDownIcon className="size-4 shrink-0 text-muted-foreground transition-transform duration-200 group-data-open/audio-settings:rotate-180" />
           </CollapsibleTrigger>
           <CollapsibleContent>
-            <Card size="sm">
-              <CardHeader className="border-b">
-                <CardTitle>Tone and timing</CardTitle>
-                <CardDescription>
-                  Applied to playback and WAV download. Locked while playing
-                  (volume still updates live).
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="gap-5">
+            <div className="border-t border-border">
+              <div className="flex flex-col gap-5 px-4 py-4">
+                <div className="flex flex-col gap-1">
+                  <p className="font-heading text-sm font-medium">
+                    Tone and timing
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    Applied to playback and WAV download. Locked while playing
+                    (volume still updates live).
+                  </p>
+                </div>
+
                 <SettingRow
                   label="Speed (WPM)"
                   valueLabel={`${settings.wpm} WPM`}
@@ -546,8 +546,8 @@ export function MorseStudio() {
                     />
                   </SettingRow>
                 ) : null}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </CollapsibleContent>
         </Collapsible>
       </div>
