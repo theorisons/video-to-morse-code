@@ -18,7 +18,7 @@
     "plainText": "Plain text",
     "placeholder": "Type or paste text…\nAccents or special characters might be substituted for their base form or skipped.",
     "outputTitle": "Morse output",
-    "outputDescription": "Text and ITU Morse. The playing letter lights up."
+    "outputDescription": "Text and Morse code. When playing, the letter lights up."
   },
   "Playback": {
     "time": "Time",
@@ -26,8 +26,8 @@
     "pause": "Pause",
     "resume": "Resume",
     "stop": "Stop",
-    "downloadWav": "Download WAV",
-    "copyMorse": "Copy Morse",
+    "downloadWav": "Download audio",
+    "copyMorse": "Copy Morse code",
     "copied": "Copied"
   },
   "Settings": {
@@ -35,13 +35,13 @@
     "presetsHint": "Presets fill speed, tone, and waveform.",
     "audioSettings": "Audio settings",
     "characterSpeed": "Character speed (WPM)",
-    "characterSpeedInfo": "How fast each character is sent (PARIS standard). Gaps between characters are stretched so the overall pace matches overall speed.",
+    "characterSpeedInfo": "How fast each character is sent using the \"PARIS\" standard. Gaps between characters are stretched so the overall pace matches overall speed.",
     "overallSpeed": "Overall speed (WPM)",
     "overallSpeedInfo": "Effective listening pace. Kept slower than character speed by stretching spacing between characters.",
     "toneFrequency": "Tone frequency",
     "toneFrequencyInfo": "Pitch of the Morse tone in hertz. Typical practice tones sit around 500–800 Hz.",
     "waveform": "Waveform",
-    "waveformInfo": "Shape of the oscillator that generates the tone. Sine is the cleanest; square, triangle, and sawtooth sound more textured.",
+    "waveformInfo": "Shape of the oscillator that generates the tone.",
     "aboutSetting": "About {label}",
     "aboutThisSetting": "About this setting",
     "wpmValue": "{value} WPM",

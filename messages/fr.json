@@ -1,7 +1,7 @@
 {
   "Metadata": {
     "title": "Générateur de code Morse",
-    "description": "Traducteur Morse et générateur audio WAV côté client. Les accents sont ramenés aux lettres de base."
+    "description": "Traducteur Morse et générateur audio WAV côté client."
   },
   "App": {
     "title": "Générateur de code Morse"
@@ -16,9 +16,9 @@
   },
   "Studio": {
     "plainText": "Texte",
-    "placeholder": "Saisissez ou collez du texte… Les accents (é, è…) deviennent e en Morse.",
-    "outputTitle": "Sortie Morse",
-    "outputDescription": "Texte et Morse ITU. La lettre en cours s’allume."
+    "placeholder": "Saisissez ou collez du texte…\nLes accents ou caractères spéciaux peuvent être remplacés par leur forme de base ou ignorés.",
+    "outputTitle": "Code Morse",
+    "outputDescription": "Texte et code Morse. Lors de la lecture, la lettre s’allume."
   },
   "Playback": {
     "time": "Temps",
@@ -26,8 +26,8 @@
     "pause": "Pause",
     "resume": "Reprendre",
     "stop": "Stop",
-    "downloadWav": "Télécharger le WAV",
-    "copyMorse": "Copier le Morse",
+    "downloadWav": "Télécharger l'audio",
+    "copyMorse": "Copier le code Morse",
     "copied": "Copié"
   },
   "Settings": {
@@ -35,13 +35,13 @@
     "presetsHint": "Les préréglages renseignent la vitesse, la tonalité et la forme d’onde.",
     "audioSettings": "Réglages audio",
     "characterSpeed": "Vitesse des caractères (WPM)",
-    "characterSpeedInfo": "Vitesse d’envoi de chaque caractère (norme PARIS). Les intervalles entre caractères sont étirés pour que le rythme global corresponde à la vitesse globale.",
+    "characterSpeedInfo": "Vitesse d’envoi de chaque caractère en utilisant la norme \"PARIS\". Les intervalles entre caractères sont étirés pour que le rythme global corresponde à la vitesse globale.",
     "overallSpeed": "Vitesse globale (WPM)",
     "overallSpeedInfo": "Rythme d’écoute effectif. Gardé plus lent que la vitesse des caractères en étirant l’espacement entre eux.",
     "toneFrequency": "Fréquence du ton",
     "toneFrequencyInfo": "Hauteur du ton Morse en hertz. Les tons d’entraînement se situent souvent autour de 500–800 Hz.",
     "waveform": "Forme d’onde",
-    "waveformInfo": "Forme de l’oscillateur qui génère le ton. Le sinus est le plus pur ; carré, triangle et dents de scie sont plus texturés.",
+    "waveformInfo": "Forme de l’oscillateur qui génère le ton.",
     "aboutSetting": "À propos de {label}",
     "aboutThisSetting": "À propos de ce réglage",
     "wpmValue": "{value} WPM",
