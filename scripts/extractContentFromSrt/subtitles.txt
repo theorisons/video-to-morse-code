@@ -1,0 +1,114 @@
+En tant que futur ingénieur qui se respecte, je veux devenir riche.
+Quoi de mieux que le loto pour gagner gros ?
+Cependant, je ne suis pas encore inconscient
+et j'ai besoin d'outils pour m'aider à gagner.
+On va donc utiliser le meilleur à notre disposition :
+la puissance de calcul d'un ordinateur.
+Tout d'abord, étudions le problème.
+Il suffit de choisir cinq numéros entre 1 et 49 et un entre 1 et 10.
+Ces 6 numéros constituent alors notre grille
+qu'il faut bien sûr noter et valider avant le tirage officiel,
+qui lui consiste à choisir aléatoirement 5 numéros
+entre 1 et 49 et un entre 1 et 10.
+À la fin, on compare les numéros des deux grilles
+et plus nous avons des numéros corrects,
+plus le gain que l'on va gagner sera élevé.
+On pourrait s'embêter à calculer, la probabilité de gagner, le gain moyen.
+Mais ça, c'est des maths, nous on fait de l'informatique.
+On n'a pas besoin de tout ça.
+On connaît les règles du jeu, on a un ordi,
+on peut commencer à faire des trucs déjà.
+Premièrement, il nous faut une stratégie d'attaque
+et j'entends par là une méthode fiable.
+On va pas s'embêter, on va chercher sur Internet.
+Comment gagner au loto ?
+Mais bien sûr !
+Et voilà, tout à fait.
+La voilà, la technique miracle.
+Au final, tous les numéros ne peuvent pas sortir en même temps.
+Si on compte la fréquence d'apparition de chacun d'eux,
+on peut estimer les numéros qui sont chauds,
+les numéros qui sont en forme ou alors les numéros qui sont un peu bof.
+C'est malin ça, c'était si simple.
+Ah aussi, ce que je me dis, c'est que vu
+que plus on avance dans les tirages, plus on élimine des combinaisons,
+on pourrait jouer tout le temps la même chose jouer une grille constante,
+quel que soit ce qui arrive. Ou sinon, vu que tout est aléatoire,
+on pourrait générer aussi une grille aléatoire.
+Ça nous fait 4 méthodes.
+On va essayer de voir laquelle est la meilleure.
+Il ne manque plus qu'à coder.
+Premièrement, il nous faut un programme de vérification de grille,
+c'est-à-dire un programme pour lequel on va donner notre grille,
+le tirage final et qui va nous indiquer le gain.
+Puis ensuite, il nous faut compter au fur et à mesure des tirages les numéros
+qui sont sortis pour pouvoir les classer selon leur fréquence d'apparition.
+Maintenant, il nous faut un système de génération de grilles,
+soit aléatoire, soit via la fréquence d'apparition des numéros.
+Puis, il faut automatiser toutes ces actions.
+Élément intéressant, tous les tirages sont publics.
+Ce qu'on va faire, c'est qu'on va tous les récupérer
+et les mettre dans un petit tableau.
+Comme ça, au moins, on va pouvoir tous les rejouer et tester nos théories.
+On va donc commencer par le deuxième tirage,
+histoire d'avoir un peu de statistiques, un peu de matière.
+Puis, à chaque fois, on va générer 4 grilles :
+une qui sera composée des numéros les plus sortis,
+une composée des numéros les moins sortis,
+une qui sera constante pour tous les tirages
+et la dernière qui sera aléatoire.
+Maintenant, tout est dit, il ne manque plus qu'à faire tourner le programme.
+Ah mince. Il semblerait qu'on ait perdu.
+Je suis sûr que c'est pas de chance
+parce que j'ai suivi à la lettre ce que m'a dit Internet.
+Je pense que si j'ai perdu,
+c'est parce que j'ai pas assez de matière pour faire mes tests.
+Parce qu'en fait, à l'heure où je fais ces tests, on est le 14 septembre 2019,
+il n'y a que 1 743 tirages de disponibles. C'est trop peu.
+Ce qu'on va faire, c'est qu'on va créer des tirages.
+Et on va pas en faire quelques-uns, on va en faire un million.
+Pour une machine comme ça, ça prend combien de temps ?
+30 secondes, le temps de les générer, les jouer et renvoyer le résultat.
+C'est pas beaucoup. Mais on va pas le faire qu'une seule fois,
+On va le faire 1 000 fois.
+On va générer 1 000 fois un million de tirages
+sur lesquels on va parier à chaque fois 4 grilles.
+Ce qui fait au final quand même...
+4 milliards de grilles validées, 8,8 milliards d'euros.
+Ça peut paraître beaucoup d'argent, mais c'est avant tout un investissement.
+Maintenant que la simulation est terminée,
+je me retrouve avec 4 pauvres fichiers texte
+qui contiennent chacun les résultats des 1 000 simulations selon les méthodes
+que l'on a choisies.
+Maintenant, il ne manque plus qu'à analyser ces résultats.
+Hop. Et, euh, il semblerait qu'on ait encore perdu.
+C'est bizarre quand même.
+Parce que j'avais fixé le jackpot à 8 millions d'euros
+et je l'ai quand même gagné beaucoup de fois. Je comprends pas.
+Hmm, je pense qu'on va plutôt faire un Excel pour analyser tout ça.
+Là, on remarque que la probabilité de gagner le jackpot,
+c'est environ une chance sur 19 millions.
+Ce qui est rigolo, c'est que c'était écrit au dos des tickets,
+on aurait pu commencer par là, mais bon.
+Ce qui est rigolo aussi, c'est que si on calcule l'espérance,
+c'est-à-dire le gain moyen que l'on a à chaque fois que l'on joue,
+il est négatif. C'est-à-dire que même si on gagne, on perd, en moyenne.
+D'ailleurs, on remarque aussi que le choix de la méthode est inutile.
+Et ça, c'est tant mieux,
+parce qu'on a quand même fait un milliard de simulations.
+On se situe dans la loi des grands nombres,
+ce qui est d'ailleurs mis
+en avant pour prouver cette théorie des nombres chauds
+et des nombres froids.
+Mais on remarque qu'en fait tout est calculable théoriquement.
+La conclusion dans tout ça, c'est que premièrement,
+faire un peu de maths m'aurait économisé un milliard de simulations.
+Peut-être retourne en cours, moi...
+D'ailleurs, tous les codes que j'ai faits
+et les résultats des différentes simulations
+que j'ai effectuées sont disponibles sur mon GitHub.
+Je mets le lien dans la description si jamais vous voulez un peu fouiller.
+Mais quand même, ce qu'on peut se dire, c'est que la vraie conclusion,
+c'est qu'avec un ordi, on peut faire des maths sans réfléchir.
+Et ça, c'est trop cool.
+Grave. Allez, salut.

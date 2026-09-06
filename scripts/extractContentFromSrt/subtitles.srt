@@ -1,0 +1,534 @@
+1
+00:00:01,120 --> 00:00:04,936
+En tant que futur ingénieur
+qui se respecte, je veux devenir riche.
+
+2
+00:00:05,020 --> 00:00:06,736
+Quoi de mieux
+que le loto pour gagner gros ?
+
+3
+00:00:06,820 --> 00:00:08,656
+Cependant,
+je ne suis pas encore inconscient
+
+4
+00:00:08,740 --> 00:00:10,656
+et j'ai besoin d'outils
+pour m'aider à gagner.
+
+5
+00:00:10,740 --> 00:00:13,196
+On va donc utiliser le meilleur
+à notre disposition :
+
+6
+00:00:13,280 --> 00:00:15,176
+la puissance de calcul d'un ordinateur.
+
+7
+00:00:15,260 --> 00:00:16,596
+Tout d'abord, étudions le problème.
+
+8
+00:00:16,680 --> 00:00:21,400
+Il suffit de choisir cinq numéros
+entre 1 et 49 et un entre 1 et 10.
+
+9
+00:00:22,020 --> 00:00:24,496
+Ces 6 numéros constituent
+alors notre grille
+
+10
+00:00:24,580 --> 00:00:28,036
+qu'il faut bien sûr noter
+et valider avant le tirage officiel,
+
+11
+00:00:28,120 --> 00:00:30,376
+qui lui consiste
+à choisir aléatoirement 5 numéros
+
+12
+00:00:30,460 --> 00:00:33,340
+entre 1 et 49 et un entre 1 et 10.
+
+13
+00:00:33,720 --> 00:00:35,996
+À la fin,
+on compare les numéros des deux grilles
+
+14
+00:00:36,080 --> 00:00:38,036
+et plus nous avons des numéros corrects,
+
+15
+00:00:38,120 --> 00:00:40,649
+plus le gain
+que l'on va gagner sera élevé.
+
+16
+00:00:41,040 --> 00:00:45,393
+On pourrait s'embêter à calculer,
+la probabilité de gagner, le gain moyen.
+
+17
+00:00:45,640 --> 00:00:47,656
+Mais ça, c'est des maths,
+nous on fait de l'informatique.
+
+18
+00:00:47,740 --> 00:00:48,716
+On n'a pas besoin de tout ça.
+
+19
+00:00:48,800 --> 00:00:50,876
+On connaît les règles du jeu,
+on a un ordi,
+
+20
+00:00:50,960 --> 00:00:52,316
+on peut commencer à faire des trucs déjà.
+
+21
+00:00:52,400 --> 00:00:54,236
+Premièrement,
+il nous faut une stratégie d'attaque
+
+22
+00:00:54,320 --> 00:00:56,476
+et j'entends par là une méthode fiable.
+
+23
+00:00:56,560 --> 00:00:59,096
+On va pas s'embêter,
+on va chercher sur Internet.
+
+24
+00:00:59,180 --> 00:01:04,186
+Comment gagner au loto ?
+
+25
+00:01:04,270 --> 00:01:06,136
+Mais bien sûr !
+
+26
+00:01:06,220 --> 00:01:07,760
+Et voilà, tout à fait.
+
+27
+00:01:07,900 --> 00:01:09,436
+La voilà, la technique miracle.
+
+28
+00:01:09,520 --> 00:01:12,516
+Au final, tous les numéros
+ne peuvent pas sortir en même temps.
+
+29
+00:01:12,600 --> 00:01:14,996
+Si on compte la fréquence
+d'apparition de chacun d'eux,
+
+30
+00:01:15,080 --> 00:01:17,016
+on peut estimer les numéros
+qui sont chauds,
+
+31
+00:01:17,100 --> 00:01:21,216
+les numéros qui sont en forme
+ou alors les numéros qui sont un peu bof.
+
+32
+00:01:21,300 --> 00:01:22,666
+C'est malin ça, c'était si simple.
+
+33
+00:01:22,750 --> 00:01:25,103
+Ah aussi, ce que je me dis, c'est que vu
+
+34
+00:01:25,360 --> 00:01:29,016
+que plus on avance dans les tirages,
+plus on élimine des combinaisons,
+
+35
+00:01:29,100 --> 00:01:31,676
+on pourrait jouer tout le temps la même
+chose jouer une grille constante,
+
+36
+00:01:31,760 --> 00:01:35,016
+quel que soit ce qui arrive.
+Ou sinon, vu que tout est aléatoire,
+
+37
+00:01:35,100 --> 00:01:37,176
+on pourrait générer
+aussi une grille aléatoire.
+
+38
+00:01:37,260 --> 00:01:38,496
+Ça nous fait 4 méthodes.
+
+39
+00:01:38,580 --> 00:01:41,326
+On va essayer
+de voir laquelle est la meilleure.
+
+40
+00:01:41,410 --> 00:01:42,416
+Il ne manque plus qu'à coder.
+
+41
+00:01:42,500 --> 00:01:45,016
+Premièrement, il nous faut un programme
+de vérification de grille,
+
+42
+00:01:45,100 --> 00:01:48,156
+c'est-à-dire un programme
+pour lequel on va donner notre grille,
+
+43
+00:01:48,240 --> 00:01:50,696
+le tirage final
+et qui va nous indiquer le gain.
+
+44
+00:01:50,780 --> 00:01:54,156
+Puis ensuite, il nous faut compter au fur
+et à mesure des tirages les numéros
+
+45
+00:01:54,240 --> 00:01:58,156
+qui sont sortis pour pouvoir les classer
+selon leur fréquence d'apparition.
+
+46
+00:01:58,240 --> 00:02:00,476
+Maintenant, il nous faut un système
+de génération de grilles,
+
+47
+00:02:00,560 --> 00:02:04,676
+soit aléatoire, soit via la fréquence
+d'apparition des numéros.
+
+48
+00:02:04,760 --> 00:02:06,416
+Puis,
+il faut automatiser toutes ces actions.
+
+49
+00:02:06,500 --> 00:02:09,076
+Élément intéressant,
+tous les tirages sont publics.
+
+50
+00:02:09,160 --> 00:02:11,316
+Ce qu'on va faire,
+c'est qu'on va tous les récupérer
+
+51
+00:02:11,400 --> 00:02:12,836
+et les mettre dans un petit tableau.
+
+52
+00:02:12,920 --> 00:02:15,836
+Comme ça, au moins, on va pouvoir
+tous les rejouer et tester nos théories.
+
+53
+00:02:15,920 --> 00:02:17,956
+On va donc commencer
+par le deuxième tirage,
+
+54
+00:02:18,040 --> 00:02:21,511
+histoire d'avoir un peu de statistiques,
+un peu de matière.
+
+55
+00:02:21,820 --> 00:02:23,936
+Puis,
+à chaque fois, on va générer 4 grilles :
+
+56
+00:02:24,020 --> 00:02:26,256
+une qui sera composée
+des numéros les plus sortis,
+
+57
+00:02:26,340 --> 00:02:28,416
+une composée des numéros les moins sortis,
+
+58
+00:02:28,500 --> 00:02:30,816
+une qui sera constante
+pour tous les tirages
+
+59
+00:02:30,900 --> 00:02:32,900
+et la dernière qui sera aléatoire.
+
+60
+00:02:34,060 --> 00:02:38,076
+Maintenant, tout est dit, il ne manque
+plus qu'à faire tourner le programme.
+
+61
+00:02:38,160 --> 00:02:40,959
+Ah mince. Il semblerait qu'on ait perdu.
+
+62
+00:02:41,780 --> 00:02:42,676
+Je suis sûr que c'est pas de chance
+
+63
+00:02:42,760 --> 00:02:45,176
+parce que j'ai suivi
+à la lettre ce que m'a dit Internet.
+
+64
+00:02:45,260 --> 00:02:46,256
+Je pense que si j'ai perdu,
+
+65
+00:02:46,340 --> 00:02:48,696
+c'est parce que j'ai pas assez de matière
+pour faire mes tests.
+
+66
+00:02:48,780 --> 00:02:52,016
+Parce qu'en fait, à l'heure où je fais
+ces tests, on est le 14 septembre 2019,
+
+67
+00:02:52,100 --> 00:02:55,940
+il n'y a que 1 743 tirages de disponibles.
+C'est trop peu.
+
+68
+00:02:56,140 --> 00:02:57,716
+Ce qu'on va faire,
+c'est qu'on va créer des tirages.
+
+69
+00:02:57,800 --> 00:03:00,556
+Et on va pas en faire quelques-uns,
+on va en faire un million.
+
+70
+00:03:00,640 --> 00:03:02,216
+Pour une machine comme ça,
+ça prend combien de temps ?
+
+71
+00:03:02,300 --> 00:03:04,876
+30 secondes, le temps de les générer,
+les jouer et renvoyer le résultat.
+
+72
+00:03:04,960 --> 00:03:06,876
+C'est pas beaucoup.
+Mais on va pas le faire qu'une seule fois,
+
+73
+00:03:06,960 --> 00:03:08,296
+On va le faire 1 000 fois.
+
+74
+00:03:08,380 --> 00:03:11,076
+On va générer 1 000 fois un million
+de tirages
+
+75
+00:03:11,160 --> 00:03:13,336
+sur lesquels on va parier
+à chaque fois 4 grilles.
+
+76
+00:03:13,420 --> 00:03:14,756
+Ce qui fait au final quand même...
+
+77
+00:03:14,840 --> 00:03:16,816
+4 milliards de grilles validées,
+8,8 milliards d'euros.
+
+78
+00:03:16,900 --> 00:03:20,316
+Ça peut paraître beaucoup d'argent,
+mais c'est avant tout un investissement.
+
+79
+00:03:20,400 --> 00:03:21,956
+Maintenant que la simulation est terminée,
+
+80
+00:03:22,040 --> 00:03:23,876
+je me retrouve
+avec 4 pauvres fichiers texte
+
+81
+00:03:23,960 --> 00:03:27,476
+qui contiennent chacun les résultats
+des 1 000 simulations selon les méthodes
+
+82
+00:03:27,560 --> 00:03:28,516
+que l'on a choisies.
+
+83
+00:03:28,600 --> 00:03:31,716
+Maintenant, il ne manque
+plus qu'à analyser ces résultats.
+
+84
+00:03:31,800 --> 00:03:37,320
+Hop. Et, euh, il semblerait
+qu'on ait encore perdu.
+
+85
+00:03:38,160 --> 00:03:39,396
+C'est bizarre quand même.
+
+86
+00:03:39,480 --> 00:03:41,916
+Parce que j'avais fixé le jackpot
+à 8 millions d'euros
+
+87
+00:03:42,000 --> 00:03:44,525
+et je l'ai quand même gagné beaucoup
+de fois. Je comprends pas.
+
+88
+00:03:44,609 --> 00:03:47,496
+Hmm, je pense qu'on va plutôt faire
+un Excel pour analyser tout ça.
+
+89
+00:03:47,580 --> 00:03:49,376
+Là, on remarque
+que la probabilité de gagner le jackpot,
+
+90
+00:03:49,460 --> 00:03:51,872
+c'est environ une chance sur 19 millions.
+
+91
+00:03:52,400 --> 00:03:54,076
+Ce qui est rigolo, c'est que c'était écrit
+au dos des tickets,
+
+92
+00:03:54,160 --> 00:03:55,776
+on aurait pu commencer par là, mais bon.
+
+93
+00:03:55,860 --> 00:03:58,496
+Ce qui est rigolo aussi,
+c'est que si on calcule l'espérance,
+
+94
+00:03:58,580 --> 00:04:01,436
+c'est-à-dire le gain moyen
+que l'on a à chaque fois que l'on joue,
+
+95
+00:04:01,520 --> 00:04:06,496
+il est négatif. C'est-à-dire que même
+si on gagne, on perd, en moyenne.
+
+96
+00:04:06,580 --> 00:04:08,696
+D'ailleurs, on remarque aussi que le choix
+de la méthode est inutile.
+
+97
+00:04:08,780 --> 00:04:09,896
+Et ça, c'est tant mieux,
+
+98
+00:04:09,980 --> 00:04:12,276
+parce qu'on a quand même fait un milliard
+de simulations.
+
+99
+00:04:12,360 --> 00:04:14,096
+On se situe dans la loi
+des grands nombres,
+
+100
+00:04:14,180 --> 00:04:15,245
+ce qui est d'ailleurs mis
+
+101
+00:04:15,329 --> 00:04:19,336
+en avant pour prouver cette théorie
+des nombres chauds
+
+102
+00:04:19,420 --> 00:04:20,416
+et des nombres froids.
+
+103
+00:04:20,500 --> 00:04:23,696
+Mais on remarque qu'en fait
+tout est calculable théoriquement.
+
+104
+00:04:23,780 --> 00:04:26,416
+La conclusion dans tout ça,
+c'est que premièrement,
+
+105
+00:04:26,500 --> 00:04:29,966
+faire un peu de maths m'aurait
+économisé un milliard de simulations.
+
+106
+00:04:30,050 --> 00:04:31,356
+Peut-être retourne en cours, moi...
+
+107
+00:04:31,440 --> 00:04:33,156
+D'ailleurs, tous les codes que j'ai faits
+
+108
+00:04:33,240 --> 00:04:34,966
+et les résultats
+des différentes simulations
+
+109
+00:04:35,050 --> 00:04:37,216
+que j'ai effectuées sont disponibles
+sur mon GitHub.
+
+110
+00:04:37,300 --> 00:04:40,496
+Je mets le lien dans la description
+si jamais vous voulez un peu fouiller.
+
+111
+00:04:40,580 --> 00:04:42,856
+Mais quand même, ce qu'on peut se dire,
+c'est que la vraie conclusion,
+
+112
+00:04:42,940 --> 00:04:45,816
+c'est qu'avec un ordi,
+on peut faire des maths sans réfléchir.
+
+113
+00:04:45,900 --> 00:04:47,236
+Et ça, c'est trop cool.
+
+114
+00:04:47,320 --> 00:04:50,320
+Grave. Allez, salut.
