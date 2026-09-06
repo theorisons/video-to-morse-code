@@ -32,13 +32,13 @@ import { SettingLabel, SettingRow } from "./setting-field";
 import { WaveformGlyph } from "./waveform-glyph";
 
 const WAVEFORMS: WaveformType[] = ["sine", "square", "triangle", "sawtooth"];
-const PRESET_KEYS: PresetName[] = [
+const PRESET_KEYS = [
   "military",
   "naval",
   "telegraph",
   "radio",
   "sonar",
-];
+] as const satisfies ReadonlyArray<PresetName>;
 
 function sliderNumber(
   value: number | readonly number[] | undefined
