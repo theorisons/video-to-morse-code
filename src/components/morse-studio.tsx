@@ -22,7 +22,6 @@ import {
 } from "@morsecodeapp/morse/audio";
 import {
   farnsworthTiming,
-  formatDuration,
   timing,
 } from "@morsecodeapp/morse/core";
 import {
@@ -97,6 +96,11 @@ function sliderNumber(
   return undefined;
 }
 
+/** Seconds with always three millisecond digits, e.g. 0.000s / 2.880s */
+function formatExactSeconds(ms: number): string {
+  return `${(Math.max(0, ms) / 1000).toFixed(3)}s`;
+}
+
 export function MorseStudio() {
   const [text, setText] = useState("");
   const [settings, setSettings] = useState<AudioSettings>(DEFAULT_SETTINGS);
@@ -125,9 +129,6 @@ export function MorseStudio() {
       : timing(settings.wpm);
     return scheduleDuration(buildSchedule(morse, t));
   }, [hasMorse, morse, settings.farnsworth, settings.farnsworthWpm, settings.wpm]);
-
-  const durationLabel = hasMorse ? formatDuration(durationMs) : "—";
-  const exactSeconds = hasMorse ? (durationMs / 1000).toFixed(3) : null;
 
   const clearPlaybackHighlight = useCallback(() => {
     setActiveCharIndex(null);
@@ -336,19 +337,14 @@ export function MorseStudio() {
         <div className="flex flex-wrap items-baseline justify-between gap-2 text-sm">
           <span className="text-muted-foreground">Exact duration</span>
           <span className="font-mono tabular-nums">
-            {durationLabel}
-            {exactSeconds !== null ? (
-              <span className="ml-2 text-muted-foreground">
-                ({exactSeconds}s)
-              </span>
-            ) : null}
+            {hasMorse ? formatExactSeconds(durationMs) : "—"}
           </span>
         </div>
         {playerState !== "idle" ? (
           <div className="flex flex-wrap items-baseline justify-between gap-2 text-sm">
             <span className="text-muted-foreground">Elapsed</span>
             <span className="font-mono tabular-nums">
-              {formatDuration(elapsedMs)}
+              {formatExactSeconds(elapsedMs)}
             </span>
           </div>
         ) : null}
