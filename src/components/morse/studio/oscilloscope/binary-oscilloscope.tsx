@@ -206,6 +206,19 @@ function drawScope(
 
       ctx.lineTo(msToX(Math.min(segEnd, windowEndMs)), levelToY(level));
     }
+
+    // Schedules often end on a tone; the gate returns to 0 after the message.
+    const last = segments[segments.length - 1];
+    const scheduleEnd = last.startMs + last.durationMs;
+    if (scheduleEnd < windowEndMs) {
+      if (scheduleEnd > windowStartMs && level !== 0) {
+        const x = msToX(scheduleEnd);
+        ctx.lineTo(x, levelToY(level));
+        ctx.lineTo(x, levelToY(0));
+      }
+      level = 0;
+    }
+
     ctx.lineTo(msToX(windowEndMs), levelToY(level));
   }
   ctx.stroke();
