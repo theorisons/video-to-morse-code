@@ -9,9 +9,32 @@ import {
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 
-/** Seconds with always three millisecond digits, e.g. 0.000s / 2.880s */
-function formatExactSeconds(ms: number): string {
-  return `${(Math.max(0, ms) / 1000).toFixed(3)}s`;
+const MS_PER_SECOND = 1000;
+const MS_PER_MINUTE = 60_000;
+const MS_PER_HOUR = 3_600_000;
+
+function pad(value: number, width: number): string {
+  return String(value).padStart(width, "0");
+}
+
+/** Compact clock: YYsZZZ, plus XXm / XXh when needed (e.g. 03m02s099). */
+function formatExactDuration(ms: number, scaleMs = ms): string {
+  const totalMs = Math.max(0, Math.round(ms));
+  const scale = Math.max(0, Math.round(scaleMs));
+  const hours = Math.floor(totalMs / MS_PER_HOUR);
+  const minutes = Math.floor((totalMs % MS_PER_HOUR) / MS_PER_MINUTE);
+  const seconds = Math.floor((totalMs % MS_PER_MINUTE) / MS_PER_SECOND);
+  const millis = totalMs % MS_PER_SECOND;
+  const secondsDisplay = pad(seconds, 1);
+  const millisDisplay = pad(millis, 3);
+
+  if (scale >= MS_PER_HOUR) {
+    return `${pad(hours, 1)}h${pad(minutes, 1)}m${secondsDisplay}s${millisDisplay}`;
+  }
+  if (scale >= MS_PER_MINUTE) {
+    return `${pad(minutes, 1)}m${secondsDisplay}s${millisDisplay}`;
+  }
+  return `${secondsDisplay}.${millisDisplay}s`;
 }
 
 type PlayerUiState = "idle" | "playing" | "paused";
@@ -40,6 +63,7 @@ export function PlaybackControls({
   onDownload,
 }: PlaybackControlsProps) {
   const t = useTranslations("Playback");
+  const scaleMs = Math.max(elapsedMs, durationMs);
 
   return (
     <div className="flex flex-col gap-3">
@@ -47,7 +71,7 @@ export function PlaybackControls({
         <span className="text-muted-foreground">{t("time")}</span>
         <span className="font-mono tabular-nums">
           {hasMorse
-            ? `${formatExactSeconds(elapsedMs)} / ${formatExactSeconds(durationMs)}`
+            ? `${formatExactDuration(elapsedMs, scaleMs)} / ${formatExactDuration(durationMs, scaleMs)}`
             : "—"}
         </span>
       </div>
