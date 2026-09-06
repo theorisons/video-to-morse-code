@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type MutableRefObject, type ReactNode } from "react";
 import {
   CheckIcon,
   ChevronDownIcon,
@@ -60,33 +60,18 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { encodeText } from "@/lib/fold-accents";
+import {
+  MAX_FREQ,
+  MAX_WPM,
+  MIN_FREQ,
+  MIN_WPM,
+  type AudioSettings,
+} from "@/lib/audio-settings";
 
-const MIN_WPM = 5;
-const MAX_WPM = 40;
-const MIN_FREQ = 200;
-const MAX_FREQ = 2000;
 const WAVEFORMS: WaveformType[] = ["sine", "square", "triangle", "sawtooth"];
 const PRESET_KEYS = Object.keys(presets) as PresetName[];
 
 type PlayerUiState = "idle" | "playing" | "paused";
-
-type AudioSettings = {
-  wpm: number;
-  frequency: number;
-  volume: number;
-  waveform: WaveformType;
-  farnsworth: boolean;
-  farnsworthWpm: number;
-};
-
-const DEFAULT_SETTINGS: AudioSettings = {
-  wpm: 20,
-  frequency: 600,
-  volume: 80,
-  waveform: "sine",
-  farnsworth: false,
-  farnsworthWpm: 15,
-};
 
 function sliderNumber(
   value: number | readonly number[] | undefined
@@ -101,9 +86,20 @@ function formatExactSeconds(ms: number): string {
   return `${(Math.max(0, ms) / 1000).toFixed(3)}s`;
 }
 
-export function MorseStudio() {
+type MorseStudioProps = {
+  settings: AudioSettings;
+  onSettingsChange: (settings: AudioSettings) => void;
+  stopPlaybackRef?: MutableRefObject<(() => void) | null>;
+  onBeforePlay?: () => void;
+};
+
+export function MorseStudio({
+  settings,
+  onSettingsChange,
+  stopPlaybackRef,
+  onBeforePlay,
+}: MorseStudioProps) {
   const [text, setText] = useState("");
-  const [settings, setSettings] = useState<AudioSettings>(DEFAULT_SETTINGS);
   const [playerState, setPlayerState] = useState<PlayerUiState>("idle");
   const [activeCharIndex, setActiveCharIndex] = useState<number | null>(null);
   const [activeSignalIndex, setActiveSignalIndex] = useState<number | null>(
@@ -190,6 +186,16 @@ export function MorseStudio() {
     };
   }, [disposePlayer]);
 
+  useEffect(() => {
+    if (!stopPlaybackRef) return;
+    stopPlaybackRef.current = () => {
+      playerRef.current?.stop();
+    };
+    return () => {
+      stopPlaybackRef.current = null;
+    };
+  }, [stopPlaybackRef]);
+
   // Live volume while playing; recreate player when other settings change (idle only)
   useEffect(() => {
     const player = playerRef.current;
@@ -212,21 +218,19 @@ export function MorseStudio() {
   ]);
 
   function patchSettings(partial: Partial<AudioSettings>) {
-    setSettings((prev) => {
-      const next = { ...prev, ...partial };
-      if (next.farnsworth) {
-        const maxFw = Math.max(1, next.wpm - 1);
-        next.farnsworthWpm = Math.min(next.farnsworthWpm, maxFw);
-        next.farnsworthWpm = Math.max(1, next.farnsworthWpm);
-      }
-      return next;
-    });
+    const next = { ...settings, ...partial };
+    if (next.farnsworth) {
+      const maxFw = Math.max(1, next.wpm - 1);
+      next.farnsworthWpm = Math.min(next.farnsworthWpm, maxFw);
+      next.farnsworthWpm = Math.max(1, next.farnsworthWpm);
+    }
+    onSettingsChange(next);
   }
 
   function applyPreset(name: PresetName) {
     if (settingsLocked) return;
     const preset = presets[name];
-    setSettings({
+    onSettingsChange({
       wpm: Math.min(MAX_WPM, Math.max(MIN_WPM, preset.wpm)),
       frequency: Math.min(MAX_FREQ, Math.max(MIN_FREQ, preset.frequency)),
       volume: preset.volume,
@@ -238,6 +242,8 @@ export function MorseStudio() {
 
   async function handlePlay() {
     if (!hasMorse) return;
+
+    onBeforePlay?.();
 
     if (playerState === "paused" && playerRef.current) {
       await playerRef.current.resume();

@@ -1,7 +1,10 @@
 "use client";
 
+import { useEffect, useRef, useState, type MutableRefObject } from "react";
+import { MorsePlayer } from "@morsecodeapp/morse/audio";
 import { itu } from "@morsecodeapp/morse/core";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import type { AudioSettings } from "@/lib/audio-settings";
 import { cn } from "@/lib/utils";
 
 type MorseEntry = {
@@ -31,7 +34,17 @@ const ITU_ENTRIES: MorseEntry[] = Object.entries(itu.charToMorse)
   .map(([char, morse]) => ({ char, morse }))
   .sort(sortEntries);
 
-function MorseAlphabetList({ entries }: { entries: MorseEntry[] }) {
+type MorseAlphabetListProps = {
+  entries: MorseEntry[];
+  activeChar: string | null;
+  onPlayChar: (char: string, morse: string) => void;
+};
+
+function MorseAlphabetList({
+  entries,
+  activeChar,
+  onPlayChar,
+}: MorseAlphabetListProps) {
   const letters = entries.filter((e) => isLetter(e.char));
   const digits = entries.filter((e) => isDigit(e.char));
   const punctuation = entries.filter(
@@ -46,25 +59,95 @@ function MorseAlphabetList({ entries }: { entries: MorseEntry[] }) {
 
   return (
     <div className="grid w-max grid-cols-[auto_auto] gap-x-5 gap-y-0.5">
-      {rows.map(({ char, morse, sectionStart }) => (
-        <div
-          key={char}
-          className={cn(
-            "col-span-2 grid grid-cols-subgrid items-baseline rounded-md py-1 hover:bg-muted/60",
-            sectionStart && "mt-2 border-t border-border pt-3"
-          )}
-        >
-          <span className="pl-0.5 text-muted-foreground tabular-nums">{char}</span>
-          <span className="pr-0.5 font-mono text-base font-semibold tracking-widest text-foreground">
-            {morse}
-          </span>
-        </div>
-      ))}
+      {rows.map(({ char, morse, sectionStart }) => {
+        const isActive = activeChar === char;
+        return (
+          <button
+            key={char}
+            type="button"
+            onClick={() => onPlayChar(char, morse)}
+            aria-label={`Play Morse for ${char}`}
+            className={cn(
+              "col-span-2 grid cursor-pointer grid-cols-subgrid items-baseline rounded-md py-1 text-left transition-colors hover:bg-muted/60",
+              sectionStart && "mt-2 border-t border-border pt-3",
+              isActive && "bg-primary/10"
+            )}
+          >
+            <span className="pl-0.5 text-muted-foreground tabular-nums">
+              {char}
+            </span>
+            <span className="pr-0.5 font-mono text-base font-semibold tracking-widest text-foreground">
+              {morse}
+            </span>
+          </button>
+        );
+      })}
     </div>
   );
 }
 
-export function MorseReferencePanel() {
+type MorseReferencePanelProps = {
+  settings: AudioSettings;
+  onBeforePlay?: () => void;
+  stopPlaybackRef?: MutableRefObject<(() => void) | null>;
+};
+
+export function MorseReferencePanel({
+  settings,
+  onBeforePlay,
+  stopPlaybackRef,
+}: MorseReferencePanelProps) {
+  const playerRef = useRef<MorsePlayer | null>(null);
+  const [activeChar, setActiveChar] = useState<string | null>(null);
+
+  useEffect(() => {
+    const stop = () => {
+      playerRef.current?.stop();
+      playerRef.current?.dispose();
+      playerRef.current = null;
+      setActiveChar(null);
+    };
+
+    if (stopPlaybackRef) {
+      stopPlaybackRef.current = stop;
+    }
+
+    return () => {
+      stop();
+      if (stopPlaybackRef) {
+        stopPlaybackRef.current = null;
+      }
+    };
+  }, [stopPlaybackRef]);
+
+  async function playChar(char: string, morse: string) {
+    onBeforePlay?.();
+
+    playerRef.current?.stop();
+    playerRef.current?.dispose();
+    playerRef.current = null;
+
+    const player = new MorsePlayer({
+      wpm: settings.wpm,
+      frequency: settings.frequency,
+      waveform: settings.waveform,
+      volume: settings.volume,
+      farnsworth: settings.farnsworth,
+      farnsworthWpm: settings.farnsworthWpm,
+      onEnd: () => {
+        playerRef.current?.dispose();
+        playerRef.current = null;
+        setActiveChar(null);
+      },
+      onStop: () => {
+        setActiveChar(null);
+      },
+    });
+    playerRef.current = player;
+    setActiveChar(char);
+    await player.play(morse, { morse: true });
+  }
+
   return (
     <aside className="w-max lg:sticky lg:top-6 lg:self-start">
       <Card size="sm" className="w-max gap-0 overflow-hidden py-0">
@@ -74,7 +157,11 @@ export function MorseReferencePanel() {
           </CardTitle>
         </CardHeader>
         <CardContent className="max-h-[min(70vh,36rem)] overflow-y-auto px-2 py-2 pr-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          <MorseAlphabetList entries={ITU_ENTRIES} />
+          <MorseAlphabetList
+            entries={ITU_ENTRIES}
+            activeChar={activeChar}
+            onPlayChar={playChar}
+          />
         </CardContent>
       </Card>
     </aside>

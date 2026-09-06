@@ -1,9 +1,18 @@
 "use client";
 
+import { useRef, useState } from "react";
 import { MorseReferencePanel } from "@/components/morse-reference-panel";
 import { MorseStudio } from "@/components/morse-studio";
+import {
+  DEFAULT_AUDIO_SETTINGS,
+  type AudioSettings,
+} from "@/lib/audio-settings";
 
 export function MorseApp() {
+  const [settings, setSettings] = useState<AudioSettings>(DEFAULT_AUDIO_SETTINGS);
+  const stopMainRef = useRef<(() => void) | null>(null);
+  const stopPreviewRef = useRef<(() => void) | null>(null);
+
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-8 px-4 py-10 sm:px-6">
       <header className="flex flex-col gap-2">
@@ -17,8 +26,17 @@ export function MorseApp() {
       </header>
 
       <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_auto] lg:gap-8">
-        <MorseStudio />
-        <MorseReferencePanel />
+        <MorseStudio
+          settings={settings}
+          onSettingsChange={setSettings}
+          stopPlaybackRef={stopMainRef}
+          onBeforePlay={() => stopPreviewRef.current?.()}
+        />
+        <MorseReferencePanel
+          settings={settings}
+          stopPlaybackRef={stopPreviewRef}
+          onBeforePlay={() => stopMainRef.current?.()}
+        />
       </div>
     </div>
   );
