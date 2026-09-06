@@ -132,7 +132,7 @@ export function MorseReferencePanel({
       frequency: settings.frequency,
       waveform: settings.waveform,
       volume: settings.volume,
-      farnsworth: settings.farnsworth,
+      farnsworth: true,
       farnsworthWpm: settings.farnsworthWpm,
       onEnd: () => {
         playerRef.current?.dispose();

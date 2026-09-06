@@ -22,7 +22,6 @@ import {
 } from "@morsecodeapp/morse/audio";
 import {
   farnsworthTiming,
-  timing,
 } from "@morsecodeapp/morse/core";
 import {
   MorseFollowAlong,
@@ -51,7 +50,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Tooltip,
@@ -120,11 +118,10 @@ export function MorseStudio({
 
   const durationMs = useMemo(() => {
     if (!hasMorse) return 0;
-    const t = settings.farnsworth
-      ? farnsworthTiming(settings.farnsworthWpm, settings.wpm)
-      : timing(settings.wpm);
-    return scheduleDuration(buildSchedule(morse, t));
-  }, [hasMorse, morse, settings.farnsworth, settings.farnsworthWpm, settings.wpm]);
+    return scheduleDuration(
+      buildSchedule(morse, farnsworthTiming(settings.farnsworthWpm, settings.wpm))
+    );
+  }, [hasMorse, morse, settings.farnsworthWpm, settings.wpm]);
 
   const clearPlaybackHighlight = useCallback(() => {
     setActiveCharIndex(null);
@@ -146,7 +143,7 @@ export function MorseStudio({
       frequency: settings.frequency,
       waveform: settings.waveform,
       volume: settings.volume,
-      farnsworth: settings.farnsworth,
+      farnsworth: true,
       farnsworthWpm: settings.farnsworthWpm,
       onPlay: () => setPlayerState("playing"),
       onPause: () => setPlayerState("paused"),
@@ -211,7 +208,6 @@ export function MorseStudio({
     settings.wpm,
     settings.frequency,
     settings.waveform,
-    settings.farnsworth,
     settings.farnsworthWpm,
     playerState,
     disposePlayer,
@@ -219,24 +215,27 @@ export function MorseStudio({
 
   function patchSettings(partial: Partial<AudioSettings>) {
     const next = { ...settings, ...partial };
-    if (next.farnsworth) {
-      const maxFw = Math.max(1, next.wpm - 1);
-      next.farnsworthWpm = Math.min(next.farnsworthWpm, maxFw);
-      next.farnsworthWpm = Math.max(1, next.farnsworthWpm);
-    }
+    const maxFw = Math.max(1, next.wpm - 1);
+    next.farnsworthWpm = Math.min(next.farnsworthWpm, maxFw);
+    next.farnsworthWpm = Math.max(1, next.farnsworthWpm);
     onSettingsChange(next);
   }
 
   function applyPreset(name: PresetName) {
     if (settingsLocked) return;
     const preset = presets[name];
+    const wpm = Math.min(MAX_WPM, Math.max(MIN_WPM, preset.wpm));
+    const maxFw = Math.max(1, wpm - 1);
+    const farnsworthWpm = Math.min(
+      maxFw,
+      Math.max(1, preset.farnsworthWpm ?? Math.min(15, maxFw))
+    );
     onSettingsChange({
-      wpm: Math.min(MAX_WPM, Math.max(MIN_WPM, preset.wpm)),
+      wpm,
       frequency: Math.min(MAX_FREQ, Math.max(MIN_FREQ, preset.frequency)),
       volume: preset.volume,
       waveform: preset.waveform,
-      farnsworth: preset.farnsworth ?? false,
-      farnsworthWpm: preset.farnsworthWpm ?? 15,
+      farnsworthWpm,
     });
   }
 
@@ -271,7 +270,7 @@ export function MorseStudio({
       frequency: settings.frequency,
       waveform: settings.waveform,
       volume: settings.volume,
-      farnsworth: settings.farnsworth,
+      farnsworth: true,
       farnsworthWpm: settings.farnsworthWpm,
       filename: "morse.wav",
     });
@@ -414,7 +413,7 @@ export function MorseStudio({
             ))}
           </div>
           <p className="text-xs text-muted-foreground">
-            Presets fill speed, tone, waveform, volume, and Farnsworth.
+            Presets fill speed, tone, waveform, and volume.
           </p>
         </div>
 
@@ -432,8 +431,8 @@ export function MorseStudio({
             <div className="border-t border-border">
               <div className="flex flex-col gap-5 px-4 py-4">
                 <SettingRow
-                  label="Speed (WPM)"
-                  info="Words per minute using the PARIS standard. Higher values play Morse faster and shorten the total duration."
+                  label="Character speed (WPM)"
+                  info="How fast each character is sent (PARIS standard). Gaps between characters are stretched so the overall pace matches overall speed."
                   valueLabel={`${settings.wpm} WPM`}
                 >
                   <Slider
@@ -445,6 +444,25 @@ export function MorseStudio({
                     onValueChange={(value) => {
                       const next = sliderNumber(value);
                       if (next !== undefined) patchSettings({ wpm: next });
+                    }}
+                  />
+                </SettingRow>
+
+                <SettingRow
+                  label="Overall speed (WPM)"
+                  info="Effective listening pace. Kept slower than character speed by stretching spacing between characters."
+                  valueLabel={`${settings.farnsworthWpm} WPM`}
+                >
+                  <Slider
+                    min={1}
+                    max={farnsworthMax}
+                    step={1}
+                    value={[Math.min(settings.farnsworthWpm, farnsworthMax)]}
+                    disabled={settingsLocked}
+                    onValueChange={(value) => {
+                      const next = sliderNumber(value);
+                      if (next !== undefined)
+                        patchSettings({ farnsworthWpm: next });
                     }}
                   />
                 </SettingRow>
@@ -503,56 +521,30 @@ export function MorseStudio({
                     }}
                     disabled={settingsLocked}
                   >
-                    <SelectTrigger id="waveform" className="w-full sm:w-44">
-                      <SelectValue />
+                    <SelectTrigger id="waveform" className="w-full sm:w-48">
+                      <SelectValue>
+                        {(value: WaveformType | null) =>
+                          value ? (
+                            <span className="flex items-center gap-2">
+                              <WaveformGlyph type={value} />
+                              <span className="capitalize">{value}</span>
+                            </span>
+                          ) : null
+                        }
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {WAVEFORMS.map((wave) => (
                         <SelectItem key={wave} value={wave}>
-                          {wave}
+                          <span className="flex items-center gap-2">
+                            <WaveformGlyph type={wave} />
+                            <span className="capitalize">{wave}</span>
+                          </span>
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
-
-                <div className="flex items-center justify-between gap-3">
-                  <SettingLabel
-                    htmlFor="farnsworth"
-                    info="Sends characters at the character WPM while stretching gaps so the overall pace is slower. Useful when learning Morse."
-                  >
-                    Farnsworth spacing
-                  </SettingLabel>
-                  <Switch
-                    id="farnsworth"
-                    checked={settings.farnsworth}
-                    disabled={settingsLocked}
-                    onCheckedChange={(checked) =>
-                      patchSettings({ farnsworth: checked })
-                    }
-                  />
-                </div>
-
-                {settings.farnsworth ? (
-                  <SettingRow
-                    label="Farnsworth overall WPM"
-                    info="Target overall speed when Farnsworth is on. Must stay slower than the character WPM above."
-                    valueLabel={`${settings.farnsworthWpm} WPM`}
-                  >
-                    <Slider
-                      min={1}
-                      max={farnsworthMax}
-                      step={1}
-                      value={[Math.min(settings.farnsworthWpm, farnsworthMax)]}
-                      disabled={settingsLocked}
-                      onValueChange={(value) => {
-                        const next = sliderNumber(value);
-                        if (next !== undefined)
-                          patchSettings({ farnsworthWpm: next });
-                      }}
-                    />
-                  </SettingRow>
-                ) : null}
               </div>
             </div>
           </CollapsibleContent>
@@ -560,6 +552,32 @@ export function MorseStudio({
       </div>
     </div>
     </TooltipProvider>
+  );
+}
+
+function WaveformGlyph({ type }: { type: WaveformType }) {
+  const d =
+    type === "sine"
+      ? "M2 12c1.5-7 3.5-7 5 0s3.5 7 5 0 3.5-7 5 0 3.5 7 5 0"
+      : type === "square"
+        ? "M3 16V8h4.5v8H12V8h4.5v8H21"
+        : type === "triangle"
+          ? "M2 16 7 8l5 8 5-8 5 8"
+          : "M3 16 11 8v8l8-8v8";
+
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      aria-hidden
+      className="size-4 shrink-0 text-muted-foreground"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d={d} />
+    </svg>
   );
 }
 

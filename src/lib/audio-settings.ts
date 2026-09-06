@@ -1,11 +1,12 @@
 import type { WaveformType } from "@morsecodeapp/morse/audio";
 
 export type AudioSettings = {
+  /** Character speed (PARIS WPM) */
   wpm: number;
   frequency: number;
   volume: number;
   waveform: WaveformType;
-  farnsworth: boolean;
+  /** Overall pace with Farnsworth spacing (always slower than `wpm`) */
   farnsworthWpm: number;
 };
 
@@ -14,7 +15,6 @@ export const DEFAULT_AUDIO_SETTINGS: AudioSettings = {
   frequency: 600,
   volume: 80,
   waveform: "sine",
-  farnsworth: false,
   farnsworthWpm: 15,
 };
 
