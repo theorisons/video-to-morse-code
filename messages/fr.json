@@ -17,11 +17,8 @@
   "Studio": {
     "plainText": "Texte",
     "placeholder": "Saisissez ou collez du texte… Les accents (é, è…) deviennent e en Morse.",
-    "followTextTitle": "Suivi — texte",
-    "followTextDescription": "Met en évidence la lettre en cours de lecture (forme de base envoyée en Morse).",
-    "followMorseTitle": "Suivi — Morse",
-    "followMorseDescription": "Morse ITU en direct. Les lettres accentuées sont ramenées à leur forme de base.",
-    "lettersCount": "{count, plural, one {# lettre} other {# lettres}}"
+    "outputTitle": "Sortie Morse",
+    "outputDescription": "Texte et Morse ITU. La lettre en cours s’allume."
   },
   "Playback": {
     "time": "Temps",
@@ -56,12 +53,11 @@
       "sawtooth": "Dent de scie"
     },
     "presets": {
+      "military": "Militaire",
+      "naval": "Naval",
       "telegraph": "Télégraphe",
       "radio": "Radio",
-      "military": "Militaire",
-      "sonar": "Sonar",
-      "naval": "Naval",
-      "beginner": "Débutant"
+      "sonar": "Sonar"
     }
   },
   "Reference": {

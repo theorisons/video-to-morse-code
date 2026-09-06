@@ -1,8 +1,6 @@
 "use client";
 
 import {
-  CheckIcon,
-  ClipboardIcon,
   DownloadIcon,
   PauseIcon,
   PlayIcon,
@@ -24,12 +22,10 @@ type PlaybackControlsProps = {
   playerState: PlayerUiState;
   elapsedMs: number;
   durationMs: number;
-  copied: boolean;
   onPlay: () => void;
   onPause: () => void;
   onStop: () => void;
   onDownload: () => void;
-  onCopy: () => void;
 };
 
 export function PlaybackControls({
@@ -38,12 +34,10 @@ export function PlaybackControls({
   playerState,
   elapsedMs,
   durationMs,
-  copied,
   onPlay,
   onPause,
   onStop,
   onDownload,
-  onCopy,
 }: PlaybackControlsProps) {
   const t = useTranslations("Playback");
 
@@ -58,27 +52,29 @@ export function PlaybackControls({
         </span>
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        {playing ? (
-          <Button type="button" onClick={onPause} disabled={!hasMorse}>
-            <PauseIcon data-icon="inline-start" />
-            {t("pause")}
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex flex-wrap gap-2">
+          {playing ? (
+            <Button type="button" onClick={onPause} disabled={!hasMorse}>
+              <PauseIcon data-icon="inline-start" />
+              {t("pause")}
+            </Button>
+          ) : (
+            <Button type="button" onClick={onPlay} disabled={!hasMorse}>
+              <PlayIcon data-icon="inline-start" />
+              {playerState === "paused" ? t("resume") : t("play")}
+            </Button>
+          )}
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onStop}
+            disabled={playerState === "idle" && elapsedMs <= 0}
+          >
+            <SquareIcon data-icon="inline-start" />
+            {t("stop")}
           </Button>
-        ) : (
-          <Button type="button" onClick={onPlay} disabled={!hasMorse}>
-            <PlayIcon data-icon="inline-start" />
-            {playerState === "paused" ? t("resume") : t("play")}
-          </Button>
-        )}
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onStop}
-          disabled={playerState === "idle" && elapsedMs <= 0}
-        >
-          <SquareIcon data-icon="inline-start" />
-          {t("stop")}
-        </Button>
+        </div>
         <Button
           type="button"
           variant="secondary"
@@ -87,19 +83,6 @@ export function PlaybackControls({
         >
           <DownloadIcon data-icon="inline-start" />
           {t("downloadWav")}
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onCopy}
-          disabled={!hasMorse}
-        >
-          {copied ? (
-            <CheckIcon data-icon="inline-start" />
-          ) : (
-            <ClipboardIcon data-icon="inline-start" />
-          )}
-          {copied ? t("copied") : t("copyMorse")}
         </Button>
       </div>
     </div>

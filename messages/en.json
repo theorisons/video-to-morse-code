@@ -17,11 +17,8 @@
   "Studio": {
     "plainText": "Plain text",
     "placeholder": "Type or paste text…\nAccents or special characters might be substituted for their base form or skipped.",
-    "followTextTitle": "Follow along | text",
-    "followTextDescription": "Highlights the letter currently playing (folded to what Morse sends).",
-    "followMorseTitle": "Follow along — Morse",
-    "followMorseDescription": "Live ITU Morse. Accented letters fold to their base form.",
-    "lettersCount": "{count, plural, one {# letter} other {# letters}}"
+    "outputTitle": "Morse output",
+    "outputDescription": "Text and ITU Morse. The playing letter lights up."
   },
   "Playback": {
     "time": "Time",
@@ -56,12 +53,11 @@
       "sawtooth": "Sawtooth"
     },
     "presets": {
+      "military": "Military",
+      "naval": "Naval",
       "telegraph": "Telegraph",
       "radio": "Radio",
-      "military": "Military",
-      "sonar": "Sonar",
-      "naval": "Naval",
-      "beginner": "Beginner"
+      "sonar": "Sonar"
     }
   },
   "Reference": {

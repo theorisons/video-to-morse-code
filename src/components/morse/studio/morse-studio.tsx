@@ -8,6 +8,7 @@ import {
   useState,
   type MutableRefObject,
 } from "react";
+import { CheckIcon, ClipboardIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
   buildSchedule,
@@ -22,9 +23,10 @@ import {
   MorseFollowAlong,
   TextFollowAlong,
 } from "@/components/morse/follow-along";
-import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
@@ -66,6 +68,7 @@ export function MorseStudio({
   onBeforePlay,
 }: MorseStudioProps) {
   const t = useTranslations("Studio");
+  const tPlayback = useTranslations("Playback");
   const [text, setText] = useState("");
   const [playerState, setPlayerState] = useState<PlayerUiState>("idle");
   const [activeCharIndex, setActiveCharIndex] = useState<number | null>(null);
@@ -78,12 +81,14 @@ export function MorseStudio({
   const playerRef = useRef<MorsePlayer | null>(null);
   const signalCountRef = useRef(0);
   const lastCharRef = useRef<number | null>(null);
+  const restartingRef = useRef(false);
+  const appliedAudioKeyRef = useRef("");
 
   const encoded = useMemo(() => encodeText(text), [text]);
   const morse = encoded.morse;
   const hasMorse = morse.length > 0;
   const playing = playerState === "playing";
-  const settingsLocked = playing;
+  const audioKey = `${settings.wpm}|${settings.frequency}|${settings.waveform}|${settings.farnsworthWpm}`;
 
   const timings = useMemo(
     () => farnsworthTiming(settings.farnsworthWpm, settings.wpm),
@@ -136,13 +141,14 @@ export function MorseStudio({
         onPause: () => setPlayerState("paused"),
         onResume: () => setPlayerState("playing"),
         onStop: () => {
+          if (restartingRef.current) return;
           setPlayerState("idle");
           clearPlaybackHighlight();
         },
         onEnd: () => {
           // Leave highlights / playhead at the end; only Stop resets.
           setPlayerState("idle");
-          setElapsedMs(durationMs);
+          setElapsedMs(playerRef.current?.totalTime ?? 0);
         },
         onSignal: (_signal, charIndex) => {
           if (lastCharRef.current !== charIndex) {
@@ -164,7 +170,7 @@ export function MorseStudio({
     );
     playerRef.current = player;
     return player;
-  }, [clearPlaybackHighlight, disposePlayer, durationMs, settings]);
+  }, [clearPlaybackHighlight, disposePlayer, settings]);
 
   useEffect(() => {
     return () => {
@@ -182,18 +188,49 @@ export function MorseStudio({
     };
   }, [stopPlaybackRef]);
 
-  // Recreate player when settings change (idle only)
+  // Drop a stale idle/paused player when settings change so the next Play
+  // builds a new one. Live playback is restarted by the effect below.
   useEffect(() => {
-    if (playerState !== "idle") return;
+    if (playerRef.current?.state === "playing") return;
     if (!playerRef.current) return;
+    restartingRef.current = true;
+    playerRef.current.stop();
+    restartingRef.current = false;
     disposePlayer();
+    setPlayerState((state) => (state === "paused" ? "idle" : state));
+  }, [audioKey, disposePlayer]);
+
+  // Live playback: restart from the start with the new tone/timing.
+  useEffect(() => {
+    if (playerState !== "playing") return;
+    if (appliedAudioKeyRef.current === audioKey) return;
+    if (!hasMorse) return;
+
+    let cancelled = false;
+    const id = window.setTimeout(() => {
+      if (cancelled) return;
+      appliedAudioKeyRef.current = audioKey;
+      restartingRef.current = true;
+      playerRef.current?.stop();
+      playerRef.current?.dispose();
+      playerRef.current = null;
+      restartingRef.current = false;
+      clearPlaybackHighlight();
+      const player = createPlayer();
+      void player.play(morse, { morse: true });
+    }, 120);
+
+    return () => {
+      cancelled = true;
+      window.clearTimeout(id);
+    };
   }, [
-    settings.wpm,
-    settings.frequency,
-    settings.waveform,
-    settings.farnsworthWpm,
+    audioKey,
     playerState,
-    disposePlayer,
+    hasMorse,
+    morse,
+    createPlayer,
+    clearPlaybackHighlight,
   ]);
 
   function patchSettings(partial: Partial<AudioSettings>) {
@@ -205,7 +242,6 @@ export function MorseStudio({
   }
 
   function applyPreset(name: PresetName) {
-    if (settingsLocked) return;
     const preset = presets[name];
     const wpm = Math.min(MAX_WPM, Math.max(MIN_WPM, preset.wpm));
     const maxFw = Math.max(1, wpm - 1);
@@ -227,15 +263,25 @@ export function MorseStudio({
     onBeforePlay?.();
 
     // Prefer the player's own state so a stale UI flag can't restart audio.
-    if (playerRef.current?.state === "paused") {
+    if (
+      playerRef.current?.state === "paused" &&
+      appliedAudioKeyRef.current === audioKey
+    ) {
       await playerRef.current.resume();
       return;
     }
 
-    if (playerRef.current?.state === "playing") {
+    if (
+      playerRef.current?.state === "playing" &&
+      appliedAudioKeyRef.current === audioKey
+    ) {
       return;
     }
 
+    restartingRef.current = true;
+    playerRef.current?.stop();
+    restartingRef.current = false;
+    appliedAudioKeyRef.current = audioKey;
     clearPlaybackHighlight();
     const player = createPlayer();
     await player.play(morse, { morse: true });
@@ -293,32 +339,30 @@ export function MorseStudio({
 
         <Card size="sm">
           <CardHeader className="border-b">
-            <CardTitle>{t("followTextTitle")}</CardTitle>
-            <CardDescription>{t("followTextDescription")}</CardDescription>
+            <CardTitle>{t("outputTitle")}</CardTitle>
+            <CardDescription>{t("outputDescription")}</CardDescription>
+            <CardAction>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleCopy}
+                disabled={!hasMorse}
+              >
+                {copied ? (
+                  <CheckIcon data-icon="inline-start" />
+                ) : (
+                  <ClipboardIcon data-icon="inline-start" />
+                )}
+                {copied ? tPlayback("copied") : tPlayback("copyMorse")}
+              </Button>
+            </CardAction>
           </CardHeader>
           <CardContent>
             <TextFollowAlong
               tokens={encoded.textTokens}
               activeCharIndex={activeCharIndex}
             />
-          </CardContent>
-        </Card>
-
-        <Card size="sm">
-          <CardHeader className="border-b">
-            <div className="flex items-start justify-between gap-3">
-              <div>
-                <CardTitle>{t("followMorseTitle")}</CardTitle>
-                <CardDescription>{t("followMorseDescription")}</CardDescription>
-              </div>
-              {hasMorse ? (
-                <Badge variant="outline">
-                  {t("lettersCount", { count: encoded.letters.length })}
-                </Badge>
-              ) : null}
-            </div>
-          </CardHeader>
-          <CardContent>
             <MorseFollowAlong
               morse={morse}
               activeCharIndex={activeCharIndex}
@@ -341,17 +385,14 @@ export function MorseStudio({
           playerState={playerState}
           elapsedMs={elapsedMs}
           durationMs={durationMs}
-          copied={copied}
           onPlay={handlePlay}
           onPause={handlePause}
           onStop={handleStop}
           onDownload={handleDownload}
-          onCopy={handleCopy}
         />
 
         <AudioSettingsPanel
           settings={settings}
-          settingsLocked={settingsLocked}
           onPatchSettings={patchSettings}
           onApplyPreset={applyPreset}
         />
