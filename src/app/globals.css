@@ -146,3 +146,21 @@
     @apply font-sans;
   }
 }
+
+/* Magic UI animated theme toggler — View Transitions API */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+html[data-magicui-theme-vt="active"]::view-transition-old(root) {
+  z-index: 1;
+}
+
+html[data-magicui-theme-vt="active"]::view-transition-new(root) {
+  z-index: 999;
+  animation: none !important;
+  clip-path: var(--magicui-theme-vt-clip-from);
+  will-change: clip-path;
+}

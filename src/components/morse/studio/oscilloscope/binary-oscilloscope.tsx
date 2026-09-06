@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef } from "react";
+import { useTheme } from "next-themes";
 import type { BinarySegment } from "./binary-segments";
 import { levelAt } from "./binary-segments";
 
@@ -254,6 +255,7 @@ export function BinaryOscilloscope({
   elapsedMs,
   getPlaybackMs,
 }: BinaryOscilloscopeProps) {
+  const { resolvedTheme } = useTheme();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const segmentsRef = useRef(segments);
@@ -332,10 +334,25 @@ export function BinaryOscilloscope({
     });
     ro.observe(wrapper);
 
+    // Canvas colors come from CSS vars; repaint when the theme class flips.
+    const scheduleThemePaint = () => {
+      requestAnimationFrame(() => {
+        if (!disposed) paint();
+      });
+    };
+    const themeObserver = new MutationObserver(scheduleThemePaint);
+    themeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class", "style", "data-theme"],
+    });
+    document.addEventListener("visibilitychange", scheduleThemePaint);
+
     return () => {
       disposed = true;
       cancelAnimationFrame(rafId);
       ro.disconnect();
+      themeObserver.disconnect();
+      document.removeEventListener("visibilitychange", scheduleThemePaint);
     };
   }, [playerState, segments, unitMs]);
 
@@ -360,7 +377,7 @@ export function BinaryOscilloscope({
       resolveTimeMs(playerState, elapsedMs, getPlaybackMs),
       readPalette(wrapper)
     );
-  }, [elapsedMs, playerState, getPlaybackMs]);
+  }, [elapsedMs, playerState, getPlaybackMs, resolvedTheme]);
 
   return (
     <div
