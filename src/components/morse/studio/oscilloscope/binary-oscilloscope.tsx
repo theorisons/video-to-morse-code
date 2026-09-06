@@ -3,6 +3,7 @@
 import { useEffect, useLayoutEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { useTheme } from "next-themes";
+import { cn } from "@/lib/utils";
 import type { BinarySegment } from "./binary-segments";
 import { levelAt } from "./binary-segments";
 
@@ -33,6 +34,10 @@ type ScopePalette = {
   glow: string;
   playhead: string;
   scanline: string;
+  traceWidth: number;
+  glowBlur: number;
+  /** When set, a crisp inner stroke is drawn on top of the glow (light mode). */
+  traceCore: string | null;
 };
 
 function cssVar(styles: CSSStyleDeclaration, name: string, fallback: string) {
@@ -55,7 +60,13 @@ function withAlpha(color: string, alpha: number): string {
   return color;
 }
 
-function readPalette(el: Element): ScopePalette {
+function isDarkTheme(resolvedTheme?: string): boolean {
+  if (resolvedTheme === "light") return false;
+  if (resolvedTheme === "dark") return true;
+  return document.documentElement.classList.contains("dark");
+}
+
+function readPalette(el: Element, resolvedTheme?: string): ScopePalette {
   const styles = getComputedStyle(el);
   const background = cssVar(styles, "--background", "oklch(0.147 0.004 49.25)");
   const primary = cssVar(styles, "--primary", "oklch(0.432 0.095 166.913)");
@@ -70,6 +81,25 @@ function readPalette(el: Element): ScopePalette {
     "--muted-foreground",
     "oklch(0.709 0.01 56.259)"
   );
+
+  if (!isDarkTheme(resolvedTheme)) {
+    return {
+      screen: "#ffffff",
+      plateCenter: "rgba(22, 163, 74, 0.05)",
+      plateEdge: "rgba(22, 163, 74, 0.015)",
+      gridMajor: "rgba(22, 101, 52, 0.14)",
+      gridMinor: "rgba(22, 101, 52, 0.06)",
+      rail: "rgba(21, 128, 61, 0.35)",
+      label: "#166534",
+      trace: "#15803d",
+      glow: "#16a34a",
+      playhead: "#ca8a04",
+      scanline: "rgba(0, 0, 0, 0)",
+      traceWidth: 2,
+      glowBlur: 14,
+      traceCore: null,
+    };
+  }
 
   // Dark primary is too muted for a CRT trace — lift it toward primary-foreground.
   const phosphor = `color-mix(in oklch, ${primaryFg} 72%, ${primary})`;
@@ -86,6 +116,9 @@ function readPalette(el: Element): ScopePalette {
     glow: `color-mix(in oklch, ${phosphor} 65%, transparent)`,
     playhead: chart1,
     scanline: "oklch(0 0 0 / 0.06)",
+    traceWidth: 2.75,
+    glowBlur: 14,
+    traceCore: null,
   };
 }
 
@@ -94,10 +127,12 @@ function resolveTimeMs(
   elapsedMs: number,
   getPlaybackMs?: () => number
 ): number {
-  if (playerState === "idle") return 0;
   if (playerState === "playing" && getPlaybackMs) {
-    return Math.max(0, getPlaybackMs());
+    const live = getPlaybackMs();
+    // MorsePlayer reports 0 as soon as it goes idle, before React's onEnd.
+    if (live > 0) return live;
   }
+  // Idle (and the idle/playing race at end) uses elapsedMs; Stop sets 0.
   return Math.max(0, elapsedMs);
 }
 
@@ -181,10 +216,6 @@ function drawScope(
 
   ctx.lineJoin = "miter";
   ctx.lineCap = "butt";
-  ctx.strokeStyle = palette.trace;
-  ctx.shadowColor = palette.glow;
-  ctx.shadowBlur = 14;
-  ctx.lineWidth = 2.75;
   ctx.beginPath();
   ctx.moveTo(msToX(windowStartMs), levelToY(level));
 
@@ -223,11 +254,26 @@ function drawScope(
 
     ctx.lineTo(msToX(windowEndMs), levelToY(level));
   }
-  ctx.stroke();
-  ctx.shadowBlur = 0;
+
+  if (palette.traceCore) {
+    ctx.shadowBlur = 0;
+    ctx.strokeStyle = palette.glow;
+    ctx.lineWidth = palette.traceWidth + 1.5;
+    ctx.stroke();
+    ctx.strokeStyle = palette.traceCore;
+    ctx.lineWidth = palette.traceWidth;
+    ctx.stroke();
+  } else {
+    ctx.strokeStyle = palette.trace;
+    ctx.shadowColor = palette.glow;
+    ctx.shadowBlur = palette.glowBlur;
+    ctx.lineWidth = palette.traceWidth;
+    ctx.stroke();
+    ctx.shadowBlur = 0;
+  }
 
   ctx.strokeStyle = withAlpha(palette.playhead, 0.9);
-  ctx.lineWidth = 1.5;
+  ctx.lineWidth = palette.traceCore ? 2 : 1.5;
   ctx.beginPath();
   ctx.moveTo(playheadX, padY);
   ctx.lineTo(playheadX, padY + plotH);
@@ -243,9 +289,11 @@ function drawScope(
 
   ctx.restore();
 
-  ctx.fillStyle = palette.scanline;
-  for (let y = 0; y < height; y += 3) {
-    ctx.fillRect(0, y, width, 1);
+  if (palette.scanline !== "rgba(0, 0, 0, 0)") {
+    ctx.fillStyle = palette.scanline;
+    for (let y = 0; y < height; y += 3) {
+      ctx.fillRect(0, y, width, 1);
+    }
   }
 }
 
@@ -265,6 +313,7 @@ export function BinaryOscilloscope({
   const playerStateRef = useRef(playerState);
   const elapsedMsRef = useRef(elapsedMs);
   const getPlaybackMsRef = useRef(getPlaybackMs);
+  const themeRef = useRef(resolvedTheme);
 
   useLayoutEffect(() => {
     segmentsRef.current = segments;
@@ -272,6 +321,7 @@ export function BinaryOscilloscope({
     playerStateRef.current = playerState;
     elapsedMsRef.current = elapsedMs;
     getPlaybackMsRef.current = getPlaybackMs;
+    themeRef.current = resolvedTheme;
   });
 
   useEffect(() => {
@@ -315,7 +365,7 @@ export function BinaryOscilloscope({
         segmentsRef.current,
         unitMsRef.current,
         t,
-        readPalette(wrapper)
+        readPalette(wrapper, themeRef.current)
       );
     };
 
@@ -356,7 +406,7 @@ export function BinaryOscilloscope({
       themeObserver.disconnect();
       document.removeEventListener("visibilitychange", scheduleThemePaint);
     };
-  }, [playerState, segments, unitMs]);
+  }, [playerState, segments, unitMs, resolvedTheme]);
 
   useEffect(() => {
     if (playerState === "playing") return;
@@ -367,6 +417,15 @@ export function BinaryOscilloscope({
     const cssW = wrapper.clientWidth;
     const cssH = wrapper.clientHeight;
     if (cssW <= 0 || cssH <= 0) return;
+    if (
+      canvas.width !== Math.round(cssW * dpr) ||
+      canvas.height !== Math.round(cssH * dpr)
+    ) {
+      canvas.width = Math.round(cssW * dpr);
+      canvas.height = Math.round(cssH * dpr);
+      canvas.style.width = `${cssW}px`;
+      canvas.style.height = `${cssH}px`;
+    }
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -377,19 +436,27 @@ export function BinaryOscilloscope({
       segmentsRef.current,
       unitMsRef.current,
       resolveTimeMs(playerState, elapsedMs, getPlaybackMs),
-      readPalette(wrapper)
+      readPalette(wrapper, resolvedTheme)
     );
   }, [elapsedMs, playerState, getPlaybackMs, resolvedTheme]);
 
   return (
     <div
-      className="rounded-lg shadow-[0_0_0_1px_color-mix(in_oklch,var(--primary)_40%,transparent),0_0_14px_color-mix(in_oklch,var(--primary-foreground)_28%,var(--primary)),0_0_32px_color-mix(in_oklch,var(--primary)_18%,transparent)]"
+      className={cn(
+        "rounded-lg",
+        "shadow-[0_0_0_1px_color-mix(in_oklch,var(--primary)_32%,transparent),0_0_12px_color-mix(in_oklch,var(--primary)_18%,transparent),0_0_24px_color-mix(in_oklch,var(--primary)_10%,transparent)]",
+        "dark:shadow-[0_0_0_1px_color-mix(in_oklch,var(--primary)_40%,transparent),0_0_14px_color-mix(in_oklch,var(--primary-foreground)_28%,var(--primary)),0_0_32px_color-mix(in_oklch,var(--primary)_18%,transparent)]"
+      )}
       role="img"
       aria-label={t("ariaLabel")}
     >
       <div
         ref={wrapperRef}
-        className="relative h-40 w-full overflow-hidden rounded-lg bg-background shadow-[inset_0_0_0_1px_color-mix(in_oklch,var(--primary)_45%,transparent),inset_0_0_20px_color-mix(in_oklch,var(--primary)_8%,transparent)]"
+        className={cn(
+          "relative h-40 w-full overflow-hidden rounded-lg bg-background",
+          "shadow-[inset_0_0_0_1px_color-mix(in_oklch,var(--primary)_28%,transparent),inset_0_0_16px_color-mix(in_oklch,var(--primary)_6%,transparent)]",
+          "dark:shadow-[inset_0_0_0_1px_color-mix(in_oklch,var(--primary)_45%,transparent),inset_0_0_20px_color-mix(in_oklch,var(--primary)_8%,transparent)]"
+        )}
       >
         <canvas ref={canvasRef} className="block size-full" />
       </div>
