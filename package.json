@@ -2,6 +2,20 @@
   "name": "video-to-morse-code",
   "version": "0.1.0",
   "private": true,
+  "description": "Helper to add Morse code to a YouTube video. Subtitles, audio, and a keyed oscilloscope clip.",
+  "homepage": "https://morse.theorisons.dev",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/theorisons/video-to-morse-code.git"
+  },
+  "keywords": [
+    "morse-code",
+    "youtube",
+    "nextjs",
+    "wav",
+    "oscilloscope",
+    "i18n"
+  ],
   "packageManager": "pnpm@10.20.0",
   "scripts": {
     "dev": "next dev",
