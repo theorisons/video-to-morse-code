@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   CheckIcon,
+  ChevronDownIcon,
   ClipboardIcon,
   DownloadIcon,
   PauseIcon,
@@ -36,6 +37,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -385,146 +391,166 @@ export function MorseStudio() {
         </div>
       </div>
 
-      <Card size="sm">
-        <CardHeader className="border-b">
-          <CardTitle>Audio settings</CardTitle>
-          <CardDescription>
-            Applied to playback and WAV download. Locked while playing (volume
-            still updates live).
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="gap-5">
-          <div className="flex flex-col gap-2">
-            <div className="flex flex-wrap gap-2">
-              {PRESET_KEYS.map((key) => (
-                <Button
-                  key={key}
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  disabled={settingsLocked}
-                  onClick={() => applyPreset(key)}
-                >
-                  {presets[key].name}
-                </Button>
-              ))}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Presets fill speed, tone, waveform, volume, and Farnsworth.
-            </p>
-          </div>
-
-          <SettingRow
-            label="Speed (WPM)"
-            valueLabel={`${settings.wpm} WPM`}
-          >
-            <Slider
-              min={MIN_WPM}
-              max={MAX_WPM}
-              step={1}
-              value={[settings.wpm]}
-              disabled={settingsLocked}
-              onValueChange={(value) => {
-                const next = sliderNumber(value);
-                if (next !== undefined) patchSettings({ wpm: next });
-              }}
-            />
-          </SettingRow>
-
-          <SettingRow
-            label="Tone frequency"
-            valueLabel={`${settings.frequency} Hz`}
-          >
-            <Slider
-              min={MIN_FREQ}
-              max={MAX_FREQ}
-              step={10}
-              value={[settings.frequency]}
-              disabled={settingsLocked}
-              onValueChange={(value) => {
-                const next = sliderNumber(value);
-                if (next !== undefined) patchSettings({ frequency: next });
-              }}
-            />
-          </SettingRow>
-
-          <SettingRow label="Volume" valueLabel={`${settings.volume}%`}>
-            <Slider
-              min={0}
-              max={100}
-              step={1}
-              value={[settings.volume]}
-              onValueChange={(value) => {
-                const next = sliderNumber(value);
-                if (next !== undefined) patchSettings({ volume: next });
-              }}
-            />
-          </SettingRow>
-
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <Label htmlFor="waveform">Waveform</Label>
-            <Select
-              value={settings.waveform}
-              onValueChange={(value) => {
-                if (
-                  typeof value === "string" &&
-                  WAVEFORMS.includes(value as WaveformType)
-                ) {
-                  patchSettings({ waveform: value as WaveformType });
-                }
-              }}
-              disabled={settingsLocked}
-            >
-              <SelectTrigger id="waveform" className="w-full sm:w-44">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {WAVEFORMS.map((wave) => (
-                  <SelectItem key={wave} value={wave}>
-                    {wave}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex flex-col gap-0.5">
-              <Label htmlFor="farnsworth">Farnsworth spacing</Label>
-              <span className="text-xs text-muted-foreground">
-                Characters at WPM; overall pace slower.
-              </span>
-            </div>
-            <Switch
-              id="farnsworth"
-              checked={settings.farnsworth}
-              disabled={settingsLocked}
-              onCheckedChange={(checked) =>
-                patchSettings({ farnsworth: checked })
-              }
-            />
-          </div>
-
-          {settings.farnsworth ? (
-            <SettingRow
-              label="Farnsworth overall WPM"
-              valueLabel={`${settings.farnsworthWpm} WPM`}
-            >
-              <Slider
-                min={1}
-                max={farnsworthMax}
-                step={1}
-                value={[Math.min(settings.farnsworthWpm, farnsworthMax)]}
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-2">
+          <Label>Sound preset</Label>
+          <div className="flex flex-wrap gap-2">
+            {PRESET_KEYS.map((key) => (
+              <Button
+                key={key}
+                type="button"
+                size="sm"
+                variant="outline"
                 disabled={settingsLocked}
-                onValueChange={(value) => {
-                  const next = sliderNumber(value);
-                  if (next !== undefined) patchSettings({ farnsworthWpm: next });
-                }}
+                onClick={() => applyPreset(key)}
+              >
+                {presets[key].name}
+              </Button>
+            ))}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Presets fill speed, tone, waveform, volume, and Farnsworth.
+          </p>
+        </div>
+
+        <Collapsible defaultOpen={false} className="flex flex-col gap-2">
+          <CollapsibleTrigger
+            render={
+              <Button
+                type="button"
+                variant="outline"
+                className="group w-full justify-between"
               />
-            </SettingRow>
-          ) : null}
-        </CardContent>
-      </Card>
+            }
+          >
+            <span>Audio settings</span>
+            <ChevronDownIcon className="size-4 transition-transform group-aria-expanded:rotate-180" />
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <Card size="sm">
+              <CardHeader className="border-b">
+                <CardTitle>Tone and timing</CardTitle>
+                <CardDescription>
+                  Applied to playback and WAV download. Locked while playing
+                  (volume still updates live).
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="gap-5">
+                <SettingRow
+                  label="Speed (WPM)"
+                  valueLabel={`${settings.wpm} WPM`}
+                >
+                  <Slider
+                    min={MIN_WPM}
+                    max={MAX_WPM}
+                    step={1}
+                    value={[settings.wpm]}
+                    disabled={settingsLocked}
+                    onValueChange={(value) => {
+                      const next = sliderNumber(value);
+                      if (next !== undefined) patchSettings({ wpm: next });
+                    }}
+                  />
+                </SettingRow>
+
+                <SettingRow
+                  label="Tone frequency"
+                  valueLabel={`${settings.frequency} Hz`}
+                >
+                  <Slider
+                    min={MIN_FREQ}
+                    max={MAX_FREQ}
+                    step={10}
+                    value={[settings.frequency]}
+                    disabled={settingsLocked}
+                    onValueChange={(value) => {
+                      const next = sliderNumber(value);
+                      if (next !== undefined) patchSettings({ frequency: next });
+                    }}
+                  />
+                </SettingRow>
+
+                <SettingRow label="Volume" valueLabel={`${settings.volume}%`}>
+                  <Slider
+                    min={0}
+                    max={100}
+                    step={1}
+                    value={[settings.volume]}
+                    onValueChange={(value) => {
+                      const next = sliderNumber(value);
+                      if (next !== undefined) patchSettings({ volume: next });
+                    }}
+                  />
+                </SettingRow>
+
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <Label htmlFor="waveform">Waveform</Label>
+                  <Select
+                    value={settings.waveform}
+                    onValueChange={(value) => {
+                      if (
+                        typeof value === "string" &&
+                        WAVEFORMS.includes(value as WaveformType)
+                      ) {
+                        patchSettings({ waveform: value as WaveformType });
+                      }
+                    }}
+                    disabled={settingsLocked}
+                  >
+                    <SelectTrigger id="waveform" className="w-full sm:w-44">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {WAVEFORMS.map((wave) => (
+                        <SelectItem key={wave} value={wave}>
+                          {wave}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex flex-col gap-0.5">
+                    <Label htmlFor="farnsworth">Farnsworth spacing</Label>
+                    <span className="text-xs text-muted-foreground">
+                      Characters at WPM; overall pace slower.
+                    </span>
+                  </div>
+                  <Switch
+                    id="farnsworth"
+                    checked={settings.farnsworth}
+                    disabled={settingsLocked}
+                    onCheckedChange={(checked) =>
+                      patchSettings({ farnsworth: checked })
+                    }
+                  />
+                </div>
+
+                {settings.farnsworth ? (
+                  <SettingRow
+                    label="Farnsworth overall WPM"
+                    valueLabel={`${settings.farnsworthWpm} WPM`}
+                  >
+                    <Slider
+                      min={1}
+                      max={farnsworthMax}
+                      step={1}
+                      value={[Math.min(settings.farnsworthWpm, farnsworthMax)]}
+                      disabled={settingsLocked}
+                      onValueChange={(value) => {
+                        const next = sliderNumber(value);
+                        if (next !== undefined)
+                          patchSettings({ farnsworthWpm: next });
+                      }}
+                    />
+                  </SettingRow>
+                ) : null}
+              </CardContent>
+            </Card>
+          </CollapsibleContent>
+        </Collapsible>
+      </div>
     </div>
   );
 }
