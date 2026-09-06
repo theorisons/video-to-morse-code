@@ -42,6 +42,10 @@ import {
   type AudioSettings,
 } from "@/lib/audio-settings";
 import { AudioSettingsPanel } from "./audio-settings";
+import {
+  BinaryOscilloscope,
+  scheduleToBinarySegments,
+} from "./oscilloscope";
 import { PlaybackControls } from "./playback-controls";
 
 type PlayerUiState = "idle" | "playing" | "paused";
@@ -78,12 +82,29 @@ export function MorseStudio({
   const playing = playerState === "playing";
   const settingsLocked = playing;
 
-  const durationMs = useMemo(() => {
-    if (!hasMorse) return 0;
-    return scheduleDuration(
-      buildSchedule(morse, farnsworthTiming(settings.farnsworthWpm, settings.wpm))
-    );
-  }, [hasMorse, morse, settings.farnsworthWpm, settings.wpm]);
+  const timings = useMemo(
+    () => farnsworthTiming(settings.farnsworthWpm, settings.wpm),
+    [settings.farnsworthWpm, settings.wpm]
+  );
+
+  const schedule = useMemo(() => {
+    if (!hasMorse) return [];
+    return buildSchedule(morse, timings);
+  }, [hasMorse, morse, timings]);
+
+  const durationMs = useMemo(
+    () => (schedule.length === 0 ? 0 : scheduleDuration(schedule)),
+    [schedule]
+  );
+
+  const binarySegments = useMemo(
+    () => scheduleToBinarySegments(schedule),
+    [schedule]
+  );
+
+  const getPlaybackMs = useCallback(() => {
+    return playerRef.current?.currentTime ?? 0;
+  }, []);
 
   const clearPlaybackHighlight = useCallback(() => {
     setActiveCharIndex(null);
@@ -291,6 +312,25 @@ export function MorseStudio({
               morse={morse}
               activeCharIndex={activeCharIndex}
               activeSignalIndex={activeSignalIndex}
+            />
+          </CardContent>
+        </Card>
+
+        <Card size="sm">
+          <CardHeader className="border-b">
+            <CardTitle>Signal — binary</CardTitle>
+            <CardDescription>
+              Oscilloscope of the Morse gate: on = 1, off = 0. A short (dot)
+              is 1 unit wide; a long (dash) is 3.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <BinaryOscilloscope
+              segments={binarySegments}
+              unitMs={timings.unit}
+              playerState={playerState}
+              elapsedMs={elapsedMs}
+              getPlaybackMs={getPlaybackMs}
             />
           </CardContent>
         </Card>
