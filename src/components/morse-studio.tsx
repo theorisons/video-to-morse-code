@@ -426,16 +426,6 @@ export function MorseStudio() {
           <CollapsibleContent>
             <div className="border-t border-border">
               <div className="flex flex-col gap-5 px-4 py-4">
-                <div className="flex flex-col gap-1">
-                  <p className="font-heading text-sm font-medium">
-                    Tone and timing
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    Applied to playback and WAV download. Locked while playing
-                    (volume still updates live).
-                  </p>
-                </div>
-
                 <SettingRow
                   label="Speed (WPM)"
                   valueLabel={`${settings.wpm} WPM`}
